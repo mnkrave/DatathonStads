@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // Importiere das SVG als React-Komponente (funktioniert z. B. mit create-react-app und SVGR)
 import { ReactComponent as Germany } from './germany.svg';
 import './styles.css';
 
-// Mapping der Bundeslaender-IDs auf Name und Hauptstadt
+// Mapping der Bundesländer-IDs auf Name und Hauptstadt
 const stateData = {
   "DE-BW": { name: "Baden-Württemberg", capital: "Stuttgart" },
   "DE-BE": { name: "Berlin", capital: "Berlin" },
@@ -25,7 +25,7 @@ const stateData = {
 // Überschriften für die Filter-Dropdowns in der linken Spalte
 const dropdownHeadings = [
   "Regionen",
-  "Bundeslaender",
+  "Bundesländer",
   "Geschlecht",
   "Versicherungsart",
   "Abrechnungsziffer",
@@ -38,10 +38,10 @@ const dropdownHeadings = [
   "Risikogruppen"
 ];
 
-// Optionen für die einzelnen Filter (Beispielwerte)
+// Optionen für jeden Filter (ohne "Keine Auswahl", da diese oben hinzugefügt wird)
 const filterOptions = {
   "Regionen": ["Nord", "Ost", "Süd", "West", "Zentral"],
-  "Bundeslaender": [
+  "Bundesländer": [
     "Baden-Württemberg",
     "Berlin",
     "Brandenburg",
@@ -81,10 +81,17 @@ const rightModeOptions = [
 // für "Zeitlicher Verlauf" und "Vergleichsdiagramm"
 const extraOptionsMapping = {
   "Zeitlicher Verlauf": ["Zeitraum 1", "Zeitraum 2", "Zeitraum 3"],
-  "Vergleichsdiagramm": ["Regionen", "Bundeslaender"]
+  "Vergleichsdiagramm": ["Regionen", "Bundesländer"]
 };
 
 function App() {
+  // Initialisiere alle linken Filter auf "Keine Auswahl"
+  const initialLeftFilters = dropdownHeadings.reduce((acc, heading) => {
+    acc[heading] = "Keine Auswahl";
+    return acc;
+  }, {});
+
+  const [leftFilters, setLeftFilters] = useState(initialLeftFilters);
   const [selectedState, setSelectedState] = useState(null);
   const [selectedRightMode, setSelectedRightMode] = useState("Deutschland Map");
   const [selectedExtra, setSelectedExtra] = useState(
@@ -97,7 +104,6 @@ function App() {
   // Handler für Klicks in der SVG-Karte (mittlere Spalte)
   const handleSVGClick = (event) => {
     const stateId = event.target.id;
-    console.log("SVG geklickt, target id:", stateId);
     if (stateData[stateId]) {
       setSelectedState(stateData[stateId]);
     } else {
@@ -105,7 +111,48 @@ function App() {
     }
   };
 
-  // Hauptinhalt für die mittlere Spalte, abhängig von der Auswahl im rechten Dropdown
+  // API-Call, um alle ausgewählten Filter an das Backend zu senden
+  const saveSelections = async () => {
+    // Transformiere die linken Filter: "Keine Auswahl" wird zu -1
+    const processedLeftFilters = {};
+    for (const key in leftFilters) {
+      processedLeftFilters[key] = leftFilters[key] === "Keine Auswahl" ? -1 : leftFilters[key];
+    }
+
+    const data = {
+      leftFilters: processedLeftFilters,
+      rightSelection: {
+        mode: selectedRightMode,
+        extra: selectedExtra,
+        yAxis: selectedRightMode === "Vergleichsdiagramm" ? selectedYAxis : undefined,
+      },
+      selectedState,
+    };
+
+    try {
+      const response = await fetch('/api/saveSelections', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        console.error('Fehler beim Senden der Daten:', response.statusText);
+      } else {
+        console.log('Daten erfolgreich an das Backend gesendet!');
+      }
+    } catch (error) {
+      console.error('Netzwerkfehler:', error);
+    }
+  };
+
+  // Auto-Speichern bei Änderungen (mit debounce möglich, hier einfach direkt)
+  useEffect(() => {
+    saveSelections();
+  }, [leftFilters, selectedRightMode, selectedExtra, selectedYAxis, selectedState]);
+
   let mainContent;
   if (selectedRightMode === "Zeitlicher Verlauf") {
     mainContent = (
@@ -155,27 +202,26 @@ function App() {
           {dropdownHeadings.map((heading, index) => (
               <div key={index} style={{ marginBottom: '15px' }}>
                 <h3 style={{ marginBottom: '5px' }}>{heading}</h3>
-                <select style={{ width: '100%' }}>
+                <select
+                    style={{ width: '100%' }}
+                    value={leftFilters[heading]}
+                    onChange={(e) =>
+                        setLeftFilters({
+                          ...leftFilters,
+                          [heading]: e.target.value,
+                        })
+                    }
+                >
+                  <option value="Keine Auswahl">Keine Auswahl</option>
                   {filterOptions[heading].map((option, idx) => (
-                      <option key={idx} value={option}>{option}</option>
+                      <option key={idx} value={option}>
+                        {option}
+                      </option>
                   ))}
                 </select>
               </div>
           ))}
-          <button
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#032d63',
-                border: 'none',
-                color: '#fff',
-                cursor: 'pointer',
-                width: '100%',
-                fontSize: '16px'
-              }}
-              onClick={() => console.log("Button 'Anwenden' (links) geklickt")}
-          >
-            Anwenden
-          </button>
+          {/* Da wir den API-Call automatisch auslösen, brauchen wir keinen "Anwenden"-Button mehr */}
         </div>
 
         {/* Mittlere Spalte: Hauptinhalt */}
@@ -278,22 +324,24 @@ function App() {
               </div>
           )}
 
-          <p>Wähle aus, welcher Inhalt in der mittleren Spalte angezeigt werden soll.</p>
+          <p>
+            Wähle aus, welcher Inhalt in der mittleren Spalte angezeigt werden soll.
+          </p>
+          {/* Zusätzlich gibt es hier einen "Speichern"-Button, der den API-Call manuell auslöst */}
           <button
               style={{
                 padding: '10px 20px',
-                backgroundColor: '#032d63',
+                backgroundColor: '#00509e',
                 border: 'none',
                 color: '#fff',
                 cursor: 'pointer',
                 width: '100%',
                 fontSize: '16px'
               }}
-              onClick={() => console.log("Button 'Anwenden' (rechts) geklickt")}
+              onClick={saveSelections}
           >
-            Anwenden
+            Speichern
           </button>
-
         </div>
       </div>
   );
