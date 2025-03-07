@@ -7,12 +7,6 @@ class AuswahlDiagramm(BaseModel):
     yAchse: str
     vglMit: str
     sortierart: str  # "aufsteigend" oder "absteigend"
-
-from pydantic import BaseModel
-from typing import Optional
-
-# Modell für Filter-Abfragen basierend auf den Optionen im Bild
-class FilterRequest(BaseModel):
     Region: Optional[str]
     Bundeslaender: Optional[str]
     Geschlecht: Optional[str]
