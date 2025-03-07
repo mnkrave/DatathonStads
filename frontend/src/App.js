@@ -162,6 +162,7 @@ function App() {
           color: '#fff'
         }}>
           <h2>Inhalt auswählen</h2>
+
           <select
               value={selectedRightMode}
               onChange={(e) => {
@@ -206,8 +207,8 @@ function App() {
 
           {/* Falls "Vergleichsdiagramm" ausgewählt ist, wird zusätzlich die Y-Achsen-Auswahl angezeigt */}
           {selectedRightMode === "Vergleichsdiagramm" && (
-              <div style={{ marginBottom: '15px' }}>
-                <h3 style={{ marginBottom: '5px' }}>Y-Achse</h3>
+              <div style={{marginBottom: '15px'}}>
+                <h3 style={{marginBottom: '5px'}}>Y-Achse</h3>
                 <label>
                   <input
                       type="radio"
@@ -218,7 +219,7 @@ function App() {
                   />
                   Impfquote
                 </label>
-                <label style={{ marginLeft: '10px' }}>
+                <label style={{marginLeft: '10px'}}>
                   <input
                       type="radio"
                       name="yAxis"
@@ -233,7 +234,7 @@ function App() {
 
           {/* Bei "Deutschland Map" wird hier die Info zum angeklickten Bundesland angezeigt */}
           {selectedRightMode === "Deutschland Map" && (
-              <div style={{ marginTop: '20px' }}>
+              <div style={{marginTop: '20px'}}>
                 {selectedState ? (
                     <div>
                       <h3>{selectedState.name}</h3>
@@ -245,10 +246,27 @@ function App() {
               </div>
           )}
 
-          <p>Wähle aus, welcher Inhalt in der mittleren Spalte angezeigt werden soll.</p>
+          <p>Wähle aus, welcher Inhalt in der mittleren Spalte angezeigt werden
+            soll.</p>
+          <button
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#032d63',
+                border: 'none',
+                color: '#fff',
+                cursor: 'pointer',
+                width: '100%',
+                fontSize: '16px'
+              }}
+              onClick={() => console.log("Button 'Anwenden' geklickt")}
+          >
+            Anwenden
+          </button>
+
         </div>
       </div>
   );
+
 }
 
 export default App;
