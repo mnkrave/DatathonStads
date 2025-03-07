@@ -66,11 +66,7 @@ function App() {
                   }}
               >
                 <h2>Karten Visualierung</h2>
-                <img
-                    src={KarteDeutschland}
-                    alt="Deutschland Karte"
-                    style={{ width: '80%' }}
-                />
+                  <img src="http://127.0.0.1:8000/image" alt="Smile" />
                 <div style={{ marginTop: '20px', width: '50%', overflow: 'hidden' }}>
                   <div
                       style={{
