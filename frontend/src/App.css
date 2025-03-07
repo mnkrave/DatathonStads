@@ -1,6 +1,9 @@
 .App {
   text-align: center;
+  background-color: #808080; /* Grau */
+  min-height: 100vh;
 }
+
 
 .App-logo {
   height: 40vmin;
@@ -14,7 +17,7 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #808080;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
