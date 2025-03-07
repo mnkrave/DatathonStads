@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { ReactComponent as Germany } from './germany.svg';
 import './styles.css';
 
-// Mapping der Bundesländer-IDs auf Name und Hauptstadt
+// Mapping der Bundeslaender-IDs auf Name und Hauptstadt
 const stateData = {
   "DE-BW": { name: "Baden-Württemberg", capital: "Stuttgart" },
   "DE-BE": { name: "Berlin", capital: "Berlin" },
@@ -25,11 +25,50 @@ const stateData = {
 // Überschriften für die Filter-Dropdowns in der linken Spalte
 const dropdownHeadings = [
   "Regionen",
-  "Bundesländer",
+  "Bundeslaender",
   "Geschlecht",
   "Versicherungsart",
-  "Abrechnungsziffer"
+  "Abrechnungsziffer",
+  "Woche",
+  "KV-Region",
+  "Altersgruppe",
+  "Fachrichtung",
+  "Absolute Anzahl",
+  "Extrapolierte Impfungen",
+  "Risikogruppen"
 ];
+
+// Optionen für die einzelnen Filter (Beispielwerte)
+const filterOptions = {
+  "Regionen": ["Nord", "Ost", "Süd", "West", "Zentral"],
+  "Bundeslaender": [
+    "Baden-Württemberg",
+    "Berlin",
+    "Brandenburg",
+    "Bremen",
+    "Hamburg",
+    "Mecklenburg-Vorpommern",
+    "Niedersachsen",
+    "Hessen",
+    "Rheinland-Pfalz",
+    "Saarland",
+    "Sachsen",
+    "Sachsen-Anhalt",
+    "Schleswig-Holstein",
+    "Nordrhein-Westfalen",
+    "Thüringen"
+  ],
+  "Geschlecht": ["Männlich", "Weiblich", "Divers", "Keine Angabe"],
+  "Versicherungsart": ["GKV", "PKV", "Sonstige"],
+  "Abrechnungsziffer": ["EBM", "GOÄ", "Sonstiges"],
+  "Woche": ["KW1", "KW2", "KW3"],
+  "KV-Region": ["Region A", "Region B", "Region C"],
+  "Altersgruppe": ["0-18", "19-35", "36-60", "60+"],
+  "Fachrichtung": ["Allgemeinmedizin", "Innere Medizin", "Pädiatrie", "Gynäkologie", "Chirurgie"],
+  "Absolute Anzahl": ["Niedrig", "Mittel", "Hoch"],
+  "Extrapolierte Impfungen": ["Niedrig", "Mittel", "Hoch"],
+  "Risikogruppen": ["Keine", "Senioren", "Kinder", "Chronische Erkrankungen"]
+};
 
 // Optionen für das Haupt-Dropdown in der rechten Spalte
 const rightModeOptions = [
@@ -42,7 +81,7 @@ const rightModeOptions = [
 // für "Zeitlicher Verlauf" und "Vergleichsdiagramm"
 const extraOptionsMapping = {
   "Zeitlicher Verlauf": ["Zeitraum 1", "Zeitraum 2", "Zeitraum 3"],
-  "Vergleichsdiagramm": ["Regionen", "Bundesländer"]
+  "Vergleichsdiagramm": ["Regionen", "Bundeslaender"]
 };
 
 function App() {
@@ -62,7 +101,6 @@ function App() {
     if (stateData[stateId]) {
       setSelectedState(stateData[stateId]);
     } else {
-      // Falls z. B. außerhalb eines Pfads geklickt wurde, Auswahl löschen:
       setSelectedState(null);
     }
   };
@@ -81,7 +119,6 @@ function App() {
     mainContent = (
         <div style={{ textAlign: 'center' }}>
           <h2>Deutschland Map</h2>
-          {/* Die Karte wird in der Mitte angezeigt */}
           <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
             <Germany
                 onClick={handleSVGClick}
@@ -119,9 +156,9 @@ function App() {
               <div key={index} style={{ marginBottom: '15px' }}>
                 <h3 style={{ marginBottom: '5px' }}>{heading}</h3>
                 <select style={{ width: '100%' }}>
-                  <option>Option 1</option>
-                  <option>Option 2</option>
-                  <option>Option 3</option>
+                  {filterOptions[heading].map((option, idx) => (
+                      <option key={idx} value={option}>{option}</option>
+                  ))}
                 </select>
               </div>
           ))}
@@ -135,7 +172,7 @@ function App() {
                 width: '100%',
                 fontSize: '16px'
               }}
-              onClick={() => console.log("Button 'Anwenden' geklickt")}
+              onClick={() => console.log("Button 'Anwenden' (links) geklickt")}
           >
             Anwenden
           </button>
@@ -162,13 +199,11 @@ function App() {
           color: '#fff'
         }}>
           <h2>Inhalt auswählen</h2>
-
           <select
               value={selectedRightMode}
               onChange={(e) => {
                 const newMode = e.target.value;
                 setSelectedRightMode(newMode);
-                // Setze Standardwert für das extra Dropdown, falls vorhanden
                 if (extraOptionsMapping[newMode]) {
                   setSelectedExtra(extraOptionsMapping[newMode][0]);
                 } else {
@@ -187,7 +222,6 @@ function App() {
             ))}
           </select>
 
-          {/* Extra Dropdown (erscheint für "Zeitlicher Verlauf" und "Vergleichsdiagramm") */}
           {extraOptionsMapping[selectedRightMode] && (
               <select
                   value={selectedExtra}
@@ -205,10 +239,9 @@ function App() {
               </select>
           )}
 
-          {/* Falls "Vergleichsdiagramm" ausgewählt ist, wird zusätzlich die Y-Achsen-Auswahl angezeigt */}
           {selectedRightMode === "Vergleichsdiagramm" && (
-              <div style={{marginBottom: '15px'}}>
-                <h3 style={{marginBottom: '5px'}}>Y-Achse</h3>
+              <div style={{ marginBottom: '15px' }}>
+                <h3 style={{ marginBottom: '5px' }}>Y-Achse</h3>
                 <label>
                   <input
                       type="radio"
@@ -219,7 +252,7 @@ function App() {
                   />
                   Impfquote
                 </label>
-                <label style={{marginLeft: '10px'}}>
+                <label style={{ marginLeft: '10px' }}>
                   <input
                       type="radio"
                       name="yAxis"
@@ -232,9 +265,8 @@ function App() {
               </div>
           )}
 
-          {/* Bei "Deutschland Map" wird hier die Info zum angeklickten Bundesland angezeigt */}
           {selectedRightMode === "Deutschland Map" && (
-              <div style={{marginTop: '20px'}}>
+              <div style={{ marginTop: '20px' }}>
                 {selectedState ? (
                     <div>
                       <h3>{selectedState.name}</h3>
@@ -246,8 +278,7 @@ function App() {
               </div>
           )}
 
-          <p>Wähle aus, welcher Inhalt in der mittleren Spalte angezeigt werden
-            soll.</p>
+          <p>Wähle aus, welcher Inhalt in der mittleren Spalte angezeigt werden soll.</p>
           <button
               style={{
                 padding: '10px 20px',
@@ -258,7 +289,7 @@ function App() {
                 width: '100%',
                 fontSize: '16px'
               }}
-              onClick={() => console.log("Button 'Anwenden' geklickt")}
+              onClick={() => console.log("Button 'Anwenden' (rechts) geklickt")}
           >
             Anwenden
           </button>
@@ -266,7 +297,6 @@ function App() {
         </div>
       </div>
   );
-
 }
 
 export default App;
