@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // Importiere das SVG als React-Komponente (funktioniert z. B. mit create-react-app und SVGR)
 import { ReactComponent as Germany } from './germany.svg';
 import './styles.css';
+
+
 
 // Mapping der Bundesländer-IDs auf Name und Hauptstadt
 const stateData = {
@@ -28,8 +30,47 @@ const dropdownHeadings = [
   "Bundesländer",
   "Geschlecht",
   "Versicherungsart",
-  "Abrechnungsziffer"
+  "Abrechnungsziffer",
+  "Woche",
+  "KV-Region",
+  "Altersgruppe",
+  "Fachrichtung",
+  "Absolute Anzahl",
+  "Extrapolierte Impfungen",
+  "Risikogruppen"
 ];
+
+// Optionen für jeden Filter (ohne "Keine Auswahl", da diese oben hinzugefügt wird)
+const filterOptions = {
+  "Regionen": ["Nord", "Ost", "Süd", "West", "Zentral"],
+  "Bundesländer": [
+    "Baden-Württemberg",
+    "Berlin",
+    "Brandenburg",
+    "Bremen",
+    "Hamburg",
+    "Mecklenburg-Vorpommern",
+    "Niedersachsen",
+    "Hessen",
+    "Rheinland-Pfalz",
+    "Saarland",
+    "Sachsen",
+    "Sachsen-Anhalt",
+    "Schleswig-Holstein",
+    "Nordrhein-Westfalen",
+    "Thüringen"
+  ],
+  "Geschlecht": ["Männlich", "Weiblich", "Divers", "Keine Angabe"],
+  "Versicherungsart": ["GKV", "PKV", "Sonstige"],
+  "Abrechnungsziffer": ["EBM", "GOÄ", "Sonstiges"],
+  "Woche": ["KW1", "KW2", "KW3"],
+  "KV-Region": ["Region A", "Region B", "Region C"],
+  "Altersgruppe": ["0-18", "19-35", "36-60", "60+"],
+  "Fachrichtung": ["Allgemeinmedizin", "Innere Medizin", "Pädiatrie", "Gynäkologie", "Chirurgie"],
+  "Absolute Anzahl": ["Niedrig", "Mittel", "Hoch"],
+  "Extrapolierte Impfungen": ["Niedrig", "Mittel", "Hoch"],
+  "Risikogruppen": ["Keine", "Senioren", "Kinder", "Chronische Erkrankungen"]
+};
 
 // Optionen für das Haupt-Dropdown in der rechten Spalte
 const rightModeOptions = [
@@ -46,6 +87,13 @@ const extraOptionsMapping = {
 };
 
 function App() {
+  // Initialisiere alle linken Filter auf "Keine Auswahl"
+  const initialLeftFilters = dropdownHeadings.reduce((acc, heading) => {
+    acc[heading] = "Keine Auswahl";
+    return acc;
+  }, {});
+
+  const [leftFilters, setLeftFilters] = useState(initialLeftFilters);
   const [selectedState, setSelectedState] = useState(null);
   const [selectedRightMode, setSelectedRightMode] = useState("Deutschland Map");
   const [selectedExtra, setSelectedExtra] = useState(
@@ -58,16 +106,55 @@ function App() {
   // Handler für Klicks in der SVG-Karte (mittlere Spalte)
   const handleSVGClick = (event) => {
     const stateId = event.target.id;
-    console.log("SVG geklickt, target id:", stateId);
     if (stateData[stateId]) {
       setSelectedState(stateData[stateId]);
     } else {
-      // Falls z. B. außerhalb eines Pfads geklickt wurde, Auswahl löschen:
       setSelectedState(null);
     }
   };
 
-  // Hauptinhalt für die mittlere Spalte, abhängig von der Auswahl im rechten Dropdown
+  // API-Call, um alle ausgewählten Filter an das Backend zu senden
+  const saveSelections = async () => {
+    // Transformiere die linken Filter: "Keine Auswahl" wird zu -1
+    const processedLeftFilters = {};
+    for (const key in leftFilters) {
+      processedLeftFilters[key] = leftFilters[key] === "Keine Auswahl" ? -1 : leftFilters[key];
+    }
+
+    const data = {
+      leftFilters: processedLeftFilters,
+      rightSelection: {
+        mode: selectedRightMode,
+        extra: selectedExtra,
+        yAxis: selectedRightMode === "Vergleichsdiagramm" ? selectedYAxis : undefined,
+      },
+      selectedState,
+    };
+
+    try {
+      const response = await fetch('/http://127.0.0.1:8000/diagram', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        console.error('Fehler beim Senden der Daten:', response.statusText);
+      } else {
+        console.log('Daten erfolgreich an das Backend gesendet!');
+      }
+    } catch (error) {
+      console.error('Netzwerkfehler:', error);
+    }
+  };
+
+  // Auto-Speichern bei Änderungen (mit debounce möglich, hier einfach direkt)
+  useEffect(() => {
+    saveSelections();
+  }, [leftFilters, selectedRightMode, selectedExtra, selectedYAxis, selectedState]);
+
   let mainContent;
   if (selectedRightMode === "Zeitlicher Verlauf") {
     mainContent = (
@@ -81,7 +168,6 @@ function App() {
     mainContent = (
         <div style={{ textAlign: 'center' }}>
           <h2>Deutschland Map</h2>
-          {/* Die Karte wird in der Mitte angezeigt */}
           <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
             <Germany
                 onClick={handleSVGClick}
@@ -118,27 +204,26 @@ function App() {
           {dropdownHeadings.map((heading, index) => (
               <div key={index} style={{ marginBottom: '15px' }}>
                 <h3 style={{ marginBottom: '5px' }}>{heading}</h3>
-                <select style={{ width: '100%' }}>
-                  <option>Option 1</option>
-                  <option>Option 2</option>
-                  <option>Option 3</option>
+                <select
+                    style={{ width: '100%' }}
+                    value={leftFilters[heading]}
+                    onChange={(e) =>
+                        setLeftFilters({
+                          ...leftFilters,
+                          [heading]: e.target.value,
+                        })
+                    }
+                >
+                  <option value="Keine Auswahl">Keine Auswahl</option>
+                  {filterOptions[heading].map((option, idx) => (
+                      <option key={idx} value={option}>
+                        {option}
+                      </option>
+                  ))}
                 </select>
               </div>
           ))}
-          <button
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#032d63',
-                border: 'none',
-                color: '#fff',
-                cursor: 'pointer',
-                width: '100%',
-                fontSize: '16px'
-              }}
-              onClick={() => console.log("Button 'Anwenden' geklickt")}
-          >
-            Anwenden
-          </button>
+          {/* Da wir den API-Call automatisch auslösen, brauchen wir keinen "Anwenden"-Button mehr */}
         </div>
 
         {/* Mittlere Spalte: Hauptinhalt */}
@@ -162,13 +247,11 @@ function App() {
           color: '#fff'
         }}>
           <h2>Inhalt auswählen</h2>
-
           <select
               value={selectedRightMode}
               onChange={(e) => {
                 const newMode = e.target.value;
                 setSelectedRightMode(newMode);
-                // Setze Standardwert für das extra Dropdown, falls vorhanden
                 if (extraOptionsMapping[newMode]) {
                   setSelectedExtra(extraOptionsMapping[newMode][0]);
                 } else {
@@ -187,7 +270,6 @@ function App() {
             ))}
           </select>
 
-          {/* Extra Dropdown (erscheint für "Zeitlicher Verlauf" und "Vergleichsdiagramm") */}
           {extraOptionsMapping[selectedRightMode] && (
               <select
                   value={selectedExtra}
@@ -205,10 +287,9 @@ function App() {
               </select>
           )}
 
-          {/* Falls "Vergleichsdiagramm" ausgewählt ist, wird zusätzlich die Y-Achsen-Auswahl angezeigt */}
           {selectedRightMode === "Vergleichsdiagramm" && (
-              <div style={{marginBottom: '15px'}}>
-                <h3 style={{marginBottom: '5px'}}>Y-Achse</h3>
+              <div style={{ marginBottom: '15px' }}>
+                <h3 style={{ marginBottom: '5px' }}>Y-Achse</h3>
                 <label>
                   <input
                       type="radio"
@@ -219,7 +300,7 @@ function App() {
                   />
                   Impfquote
                 </label>
-                <label style={{marginLeft: '10px'}}>
+                <label style={{ marginLeft: '10px' }}>
                   <input
                       type="radio"
                       name="yAxis"
@@ -232,9 +313,8 @@ function App() {
               </div>
           )}
 
-          {/* Bei "Deutschland Map" wird hier die Info zum angeklickten Bundesland angezeigt */}
           {selectedRightMode === "Deutschland Map" && (
-              <div style={{marginTop: '20px'}}>
+              <div style={{ marginTop: '20px' }}>
                 {selectedState ? (
                     <div>
                       <h3>{selectedState.name}</h3>
@@ -246,27 +326,27 @@ function App() {
               </div>
           )}
 
-          <p>Wähle aus, welcher Inhalt in der mittleren Spalte angezeigt werden
-            soll.</p>
+          <p>
+            Wähle aus, welcher Inhalt in der mittleren Spalte angezeigt werden soll.
+          </p>
+          {/* Zusätzlich gibt es hier einen "Speichern"-Button, der den API-Call manuell auslöst */}
           <button
               style={{
                 padding: '10px 20px',
-                backgroundColor: '#032d63',
+                backgroundColor: '#00509e',
                 border: 'none',
                 color: '#fff',
                 cursor: 'pointer',
                 width: '100%',
                 fontSize: '16px'
               }}
-              onClick={() => console.log("Button 'Anwenden' geklickt")}
+              onClick={saveSelections}
           >
-            Anwenden
+            Speichern
           </button>
-
         </div>
       </div>
   );
-
 }
 
 export default App;
