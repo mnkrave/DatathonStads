@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
+// Importiere das SVG als React-Komponente (funktioniert mit create-react-app und SVGR)
 import { ReactComponent as Germany } from './germany.svg';
+// CSS importieren
+import './styles.css';
 
 function App() {
   const [activeTab, setActiveTab] = useState(0);
 
-  // Beispiel-Handler für Interaktivität
+  // Beispiel-Handler, falls du Klicks verarbeiten möchtest
   const handleSVGClick = (event) => {
     console.log("SVG wurde angeklickt", event);
-    // Hier kann später weitere Logik implementiert werden
+    // Hier kannst du später Logik ergänzen,
+    // z.B. anhand von event.target.id ermitteln, welches Bundesland geklickt wurde.
   };
 
   return (
       <div className="App" style={{ display: 'flex', height: '100vh' }}>
-        {/* Linke Spalte: 8 Dropdown-Menüs */}
-        <div style={{ flex: 1, borderRight: '1px solid #ccc', padding: '10px' }}>
+        {/* Linke Spalte: Dropdown-Menüs */}
+        <div style={{ flex: 1, borderRight: '1px solid #ccc', padding: '10px', color: '#fff' }}>
           <h2>Menüs</h2>
           {Array.from({ length: 8 }).map((_, index) => (
               <select
@@ -32,7 +36,7 @@ function App() {
         </div>
 
         {/* Mittlere Spalte: Tabs */}
-        <div style={{ flex: 2, borderRight: '1px solid #ccc', padding: '10px' }}>
+        <div style={{ flex: 2, borderRight: '1px solid #ccc', padding: '10px', color: '#fff' }}>
           {/* Tab Header */}
           <div style={{ display: 'flex', marginBottom: '20px' }}>
             <button
@@ -72,7 +76,7 @@ function App() {
                   }}
               >
                 <h2>Karten Visualierung</h2>
-                {/* Verwende die interaktive SVG-Komponente */}
+                {/* Hier wird die interaktive SVG-Karte eingebunden */}
                 <Germany
                     onClick={handleSVGClick}
                     style={{ width: '80%', cursor: 'pointer' }}
@@ -117,26 +121,8 @@ function App() {
         </div>
 
         {/* Rechte Spalte: Datensatz Attribute */}
-        <div style={{ flex: 1, padding: '10px', overflowY: 'auto' }}>
-          <h2>Datensatz Attribute</h2>
-          <p>
-            Der Datensatz enthält wöchentlich aggregierte Daten zur Grippeimpfung und umfasst die folgenden Attribute:
-          </p>
-          <ul>
-            <li><strong>week:</strong> Kalenderwoche der Datensammlung.</li>
-            <li><strong>kvregion:</strong> Kassenärztliche Vereinigungsregion.</li>
-            <li><strong>region:</strong> Regionale Unterteilung.</li>
-            <li><strong>specialization:</strong> Spezialisierung der impfenden Fachgruppe (ZiMern entsprechen der LANR-Nummer –
-              <a href="https://de.wikipedia.org/wiki/Lebenslange_Arztnummer#Aufbau" target="_blank" rel="noopener noreferrer">Details</a>
-              ).</li>
-            <li><strong>gender:</strong> Geschlecht der geimpften Personen.</li>
-            <li><strong>age_group:</strong> Altersgruppe der geimpften Personen.</li>
-            <li><strong>insurancecode:</strong> AbrechnungsziMer entsprechend EBM bzw. GOÄAbrechnungsziMer.</li>
-            <li><strong>insurancetype:</strong> Versicherungstyp (GKV/PKV).</li>
-            <li><strong>absolute:</strong> Absolute Anzahl der Impfungen.</li>
-            <li><strong>extrapolated:</strong> Hochgerechnete Anzahl der Impfungen (extrapoliert auf Basis der aktiven Ärzte).</li>
-            <li><strong>risk_groups:</strong> Spezifische Risikogruppe (sofern vorhanden).</li>
-          </ul>
+        <div style={{ flex: 1, padding: '10px', overflowY: 'auto', color: '#fff' }}>
+
         </div>
       </div>
   );

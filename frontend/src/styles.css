@@ -1,0 +1,24 @@
+/* ------ styles.css ------ */
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #8000;
+}
+
+/* Gestalte alle Pfade in der SVG */
+svg path {
+  fill: #00394f;
+  stroke: #eee;
+  stroke-width: 0.25;
+}
+
+/* Beim Hover ändern sich Farbe und Cursor */
+svg path:hover {
+  fill: #006284;
+  transition: 0.6s;
+  cursor: pointer;
+}
