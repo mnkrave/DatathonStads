@@ -132,7 +132,7 @@ function App() {
     };
 
     try {
-      const response = await fetch('/http://127.0.0.1:8000/diagram', {
+      const response = await fetch('http://127.0.0.1:8000/diagram', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
