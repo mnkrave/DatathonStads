@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
-import KarteDeutschland from './Karte_Deutschland.svg.png';
+import { ReactComponent as Germany } from './germany.svg';
 
 function App() {
   const [activeTab, setActiveTab] = useState(0);
+
+  // Beispiel-Handler für Interaktivität
+  const handleSVGClick = (event) => {
+    console.log("SVG wurde angeklickt", event);
+    // Hier kann später weitere Logik implementiert werden
+  };
 
   return (
       <div className="App" style={{ display: 'flex', height: '100vh' }}>
@@ -51,7 +57,7 @@ function App() {
                   cursor: 'pointer',
                 }}
             >
-              Tab 2
+              Diagramme
             </button>
           </div>
 
@@ -66,10 +72,10 @@ function App() {
                   }}
               >
                 <h2>Karten Visualierung</h2>
-                <img
-                    src={KarteDeutschland}
-                    alt="Deutschland Karte"
-                    style={{ width: '80%' }}
+                {/* Verwende die interaktive SVG-Komponente */}
+                <Germany
+                    onClick={handleSVGClick}
+                    style={{ width: '80%', cursor: 'pointer' }}
                 />
                 <div style={{ marginTop: '20px', width: '50%', overflow: 'hidden' }}>
                   <div
@@ -104,8 +110,7 @@ function App() {
                     height: '100%',
                   }}
               >
-                {/* Platzhalter für den zweiten Tab */}
-                <h2>Tab 2</h2>
+                <h2>Zeitsrahl Diagramme</h2>
                 <p>Hier erscheint später weiterer Inhalt.</p>
               </div>
           )}
@@ -118,40 +123,19 @@ function App() {
             Der Datensatz enthält wöchentlich aggregierte Daten zur Grippeimpfung und umfasst die folgenden Attribute:
           </p>
           <ul>
-            <li>
-              <strong>week:</strong>
-            </li>
-            <li>
-              <strong>kvregion:</strong>
-            </li>
-            <li>
-              <strong>region:</strong>
-            </li>
-            <li>
-              <strong>specialization:</strong>
-
-            </li>
-            <li>
-              <strong>gender:</strong>
-            </li>
-            <li>
-              <strong>age_group:</strong>
-            </li>
-            <li>
-              <strong>insurancecode:</strong>
-            </li>
-            <li>
-              <strong>insurancetype:</strong>
-            </li>
-            <li>
-              <strong>absolute:</strong>
-            </li>
-            <li>
-              <strong>extrapolated:</strong>
-            </li>
-            <li>
-              <strong>risk_groups:</strong>
-            </li>
+            <li><strong>week:</strong> Kalenderwoche der Datensammlung.</li>
+            <li><strong>kvregion:</strong> Kassenärztliche Vereinigungsregion.</li>
+            <li><strong>region:</strong> Regionale Unterteilung.</li>
+            <li><strong>specialization:</strong> Spezialisierung der impfenden Fachgruppe (ZiMern entsprechen der LANR-Nummer –
+              <a href="https://de.wikipedia.org/wiki/Lebenslange_Arztnummer#Aufbau" target="_blank" rel="noopener noreferrer">Details</a>
+              ).</li>
+            <li><strong>gender:</strong> Geschlecht der geimpften Personen.</li>
+            <li><strong>age_group:</strong> Altersgruppe der geimpften Personen.</li>
+            <li><strong>insurancecode:</strong> AbrechnungsziMer entsprechend EBM bzw. GOÄAbrechnungsziMer.</li>
+            <li><strong>insurancetype:</strong> Versicherungstyp (GKV/PKV).</li>
+            <li><strong>absolute:</strong> Absolute Anzahl der Impfungen.</li>
+            <li><strong>extrapolated:</strong> Hochgerechnete Anzahl der Impfungen (extrapoliert auf Basis der aktiven Ärzte).</li>
+            <li><strong>risk_groups:</strong> Spezifische Risikogruppe (sofern vorhanden).</li>
           </ul>
         </div>
       </div>
