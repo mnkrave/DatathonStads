@@ -7,7 +7,7 @@ df = pd.read_csv("D:/Datathon/backend/Data/data.csv",
                  encoding='utf-8', delimiter=';')
 #df = pd.read_csv("Data/20025-03-07_cgm-datathon-challenge-flu_riskgroupsv1.csv")
 
-def plotBarBundeslandVac(df : pd.DataFrame) -> plt.Figure:
+def plotBarBundeslandVac() -> plt.Figure:
 # Sort the DataFrame for better readability
     bundeslaender_vaccinations = df.sort_values(by="extrapolated", ascending=False)
 

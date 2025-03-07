@@ -8,4 +8,4 @@ def read_root():
 
 @app.get("/image")
 def read_root():
-    return {"message": "Hello, image is running!"}
+    return plotBarBundeslandVac()
