@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { ReactComponent as Germany } from './germany.svg';
 import './styles.css';
 
+
+
 // Mapping der Bundesländer-IDs auf Name und Hauptstadt
 const stateData = {
   "DE-BW": { name: "Baden-Württemberg", capital: "Stuttgart" },
@@ -130,7 +132,7 @@ function App() {
     };
 
     try {
-      const response = await fetch('/api/saveSelections', {
+      const response = await fetch('/http://127.0.0.1:8000/diagram', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
