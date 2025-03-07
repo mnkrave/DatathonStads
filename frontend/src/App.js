@@ -22,11 +22,40 @@ const stateData = {
   "DE-TH": { name: "Thüringen", capital: "Erfurt" }
 };
 
-function App() {
-  const [activeTab, setActiveTab] = useState(0);
-  const [selectedState, setSelectedState] = useState(null);
+// Überschriften für die Filter-Dropdowns in der linken Spalte
+const dropdownHeadings = [
+  "Regionen",
+  "Bundesländer",
+  "Geschlecht",
+  "Versicherungsart",
+  "Abrechnungsziffer"
+];
 
-  // Handler für Klicks in der SVG-Karte
+// Optionen für das Haupt-Dropdown in der rechten Spalte
+const rightModeOptions = [
+  "Zeitlicher Verlauf",
+  "Deutschland Map",
+  "Vergleichsdiagramm"
+];
+
+// Extra Dropdown-Optionen (erscheinen unter dem Haupt-Dropdown in der rechten Spalte)
+// für "Zeitlicher Verlauf" und "Vergleichsdiagramm"
+const extraOptionsMapping = {
+  "Zeitlicher Verlauf": ["Zeitraum 1", "Zeitraum 2", "Zeitraum 3"],
+  "Vergleichsdiagramm": ["Regionen", "Bundesländer"]
+};
+
+function App() {
+  const [selectedState, setSelectedState] = useState(null);
+  const [selectedRightMode, setSelectedRightMode] = useState("Deutschland Map");
+  const [selectedExtra, setSelectedExtra] = useState(
+      extraOptionsMapping["Deutschland Map"]
+          ? extraOptionsMapping["Deutschland Map"][0]
+          : ""
+  );
+  const [selectedYAxis, setSelectedYAxis] = useState("Impfquote");
+
+  // Handler für Klicks in der SVG-Karte (mittlere Spalte)
   const handleSVGClick = (event) => {
     const stateId = event.target.id;
     console.log("SVG geklickt, target id:", stateId);
@@ -38,134 +67,185 @@ function App() {
     }
   };
 
+  // Hauptinhalt für die mittlere Spalte, abhängig von der Auswahl im rechten Dropdown
+  let mainContent;
+  if (selectedRightMode === "Zeitlicher Verlauf") {
+    mainContent = (
+        <div style={{ textAlign: 'center' }}>
+          <h2>Zeitlicher Verlauf</h2>
+          <p>Gewählter Zeitraum: {selectedExtra}</p>
+          <p>(Weitere Inhalte folgen...)</p>
+        </div>
+    );
+  } else if (selectedRightMode === "Deutschland Map") {
+    mainContent = (
+        <div style={{ textAlign: 'center' }}>
+          <h2>Deutschland Map</h2>
+          {/* Die Karte wird in der Mitte angezeigt */}
+          <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <Germany
+                onClick={handleSVGClick}
+                style={{
+                  maxWidth: '600px',
+                  width: '100%',
+                  cursor: 'pointer',
+                }}
+            />
+          </div>
+        </div>
+    );
+  } else if (selectedRightMode === "Vergleichsdiagramm") {
+    mainContent = (
+        <div style={{ textAlign: 'center' }}>
+          <h2>Vergleichsdiagramm</h2>
+          <p>Vergleich: {selectedExtra}</p>
+          <p>Y-Achse: {selectedYAxis}</p>
+          <p>(Weitere Inhalte folgen...)</p>
+        </div>
+    );
+  }
+
   return (
       <div className="App" style={{ display: 'flex', height: '100vh' }}>
-        {/* Linke Spalte: Dropdown-Menüs (mit h1 "Menü") */}
-        <div style={{ flex: 1, borderRight: '1px solid #ccc', padding: '10px', color: '#fff' }}>
-          <h1>Menü</h1>
-          {Array.from({ length: 8 }).map((_, index) => (
-              <select
-                  key={index}
-                  style={{
-                    display: 'block',
-                    marginBottom: '10px',
-                    width: '100%',
-                  }}
-              >
-                <option>Option 1</option>
-                <option>Option 2</option>
-                <option>Option 3</option>
-              </select>
+        {/* Linke Spalte: Filter-Dropdowns */}
+        <div style={{
+          flex: 1,
+          borderRight: '1px solid #ccc',
+          padding: '10px',
+          color: '#fff'
+        }}>
+          <h1>Filter</h1>
+          {dropdownHeadings.map((heading, index) => (
+              <div key={index} style={{ marginBottom: '15px' }}>
+                <h3 style={{ marginBottom: '5px' }}>{heading}</h3>
+                <select style={{ width: '100%' }}>
+                  <option>Option 1</option>
+                  <option>Option 2</option>
+                  <option>Option 3</option>
+                </select>
+              </div>
           ))}
+          <button
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#032d63',
+                border: 'none',
+                color: '#fff',
+                cursor: 'pointer',
+                width: '100%',
+                fontSize: '16px'
+              }}
+              onClick={() => console.log("Button 'Anwenden' geklickt")}
+          >
+            Anwenden
+          </button>
         </div>
 
-        {/* Mittlere Spalte: Tabs */}
-        <div style={{ flex: 2, borderRight: '1px solid #ccc', padding: '10px', color: '#fff' }}>
-          {/* Tab Header */}
-          <div style={{ display: 'flex', marginBottom: '20px' }}>
-            <button
-                onClick={() => setActiveTab(0)}
-                style={{
-                  flex: 1,
-                  padding: '10px',
-                  backgroundColor: activeTab === 0 ? '#ccc' : '#f0f0f0',
-                  border: '1px solid #ccc',
-                  cursor: 'pointer',
-                }}
-            >
-              Karten Visualierung
-            </button>
-            <button
-                onClick={() => setActiveTab(1)}
-                style={{
-                  flex: 1,
-                  padding: '10px',
-                  backgroundColor: activeTab === 1 ? '#ccc' : '#f0f0f0',
-                  border: '1px solid #ccc',
-                  cursor: 'pointer',
-                }}
-            >
-              Diagramme
-            </button>
-          </div>
+        {/* Mittlere Spalte: Hauptinhalt */}
+        <div style={{
+          flex: 2,
+          padding: '10px',
+          color: '#fff',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          {mainContent}
+        </div>
 
-          {/* Tab Content */}
-          {activeTab === 0 && (
-              <div
+        {/* Rechte Spalte: Auswahl der Anzeige-Optionen */}
+        <div style={{
+          flex: 1,
+          borderLeft: '1px solid #ccc',
+          padding: '10px',
+          color: '#fff'
+        }}>
+          <h2>Inhalt auswählen</h2>
+          <select
+              value={selectedRightMode}
+              onChange={(e) => {
+                const newMode = e.target.value;
+                setSelectedRightMode(newMode);
+                // Setze Standardwert für das extra Dropdown, falls vorhanden
+                if (extraOptionsMapping[newMode]) {
+                  setSelectedExtra(extraOptionsMapping[newMode][0]);
+                } else {
+                  setSelectedExtra("");
+                }
+              }}
+              style={{
+                width: '100%',
+                marginBottom: '15px',
+                fontSize: '16px',
+                padding: '8px'
+              }}
+          >
+            {rightModeOptions.map((option, index) => (
+                <option key={index} value={option}>{option}</option>
+            ))}
+          </select>
+
+          {/* Extra Dropdown (erscheint für "Zeitlicher Verlauf" und "Vergleichsdiagramm") */}
+          {extraOptionsMapping[selectedRightMode] && (
+              <select
+                  value={selectedExtra}
+                  onChange={(e) => setSelectedExtra(e.target.value)}
                   style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    // Dieser Container sorgt bereits dafür, dass Inhalt
-                    // vertikal angeordnet und horizontal zentriert wird:
-                    alignItems: 'center',
-                    textAlign: 'center',
+                    width: '100%',
+                    marginBottom: '15px',
+                    fontSize: '16px',
+                    padding: '8px'
                   }}
               >
-                <h2>Karten Visualierung</h2>
-                {/* Neuer "Wrapper", der horizontal zentriert */}
-                <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                  <Germany
-                      onClick={handleSVGClick}
-                      // maxWidth und width helfen, die Karte nicht zu groß zu machen:
-                      style={{
-                        maxWidth: '600px',
-                        width: '100%',
-                        cursor: 'pointer',
-                      }}
+                {extraOptionsMapping[selectedRightMode].map((option, index) => (
+                    <option key={index} value={option}>{option}</option>
+                ))}
+              </select>
+          )}
+
+          {/* Falls "Vergleichsdiagramm" ausgewählt ist, wird zusätzlich die Y-Achsen-Auswahl angezeigt */}
+          {selectedRightMode === "Vergleichsdiagramm" && (
+              <div style={{ marginBottom: '15px' }}>
+                <h3 style={{ marginBottom: '5px' }}>Y-Achse</h3>
+                <label>
+                  <input
+                      type="radio"
+                      name="yAxis"
+                      value="Impfquote"
+                      checked={selectedYAxis === "Impfquote"}
+                      onChange={(e) => setSelectedYAxis(e.target.value)}
                   />
-                </div>
-
-                <div style={{ marginTop: '20px', width: '50%', overflow: 'hidden' }}>
-                  <div
-                      style={{
-                        transform: 'scale(1.5)',
-                        transformOrigin: 'left',
-                        width: 'calc(100% / 1.5)',
-                      }}
-                  >
-                    <input
-                        type="range"
-                        min="2000"
-                        max="2030"
-                        step="1"
-                        style={{
-                          width: '100%',
-                          height: '40px',
-                        }}
-                    />
-                  </div>
-                </div>
+                  Impfquote
+                </label>
+                <label style={{ marginLeft: '10px' }}>
+                  <input
+                      type="radio"
+                      name="yAxis"
+                      value="Impfzahl"
+                      checked={selectedYAxis === "Impfzahl"}
+                      onChange={(e) => setSelectedYAxis(e.target.value)}
+                  />
+                  Impfzahl
+                </label>
               </div>
           )}
 
-
-          {activeTab === 1 && (
-              <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100%',
-                  }}
-              >
-                <h2>Zeitsrahl Diagramme</h2>
-                <p>Hier erscheint später weiterer Inhalt.</p>
+          {/* Bei "Deutschland Map" wird hier die Info zum angeklickten Bundesland angezeigt */}
+          {selectedRightMode === "Deutschland Map" && (
+              <div style={{ marginTop: '20px' }}>
+                {selectedState ? (
+                    <div>
+                      <h3>{selectedState.name}</h3>
+                      <p>Hauptstadt: {selectedState.capital}</p>
+                    </div>
+                ) : (
+                    <p>Bitte ein Bundesland auswählen.</p>
+                )}
               </div>
           )}
-        </div>
 
-        {/* Rechte Spalte: Anzeige der Bundesland-Informationen */}
-        <div style={{ flex: 1, padding: '10px', overflowY: 'auto', color: '#fff' }}>
-          <h2>Bundesland Infos</h2>
-          {selectedState ? (
-              <div>
-                <h3>{selectedState.name}</h3>
-                <p>Hauptstadt: {selectedState.capital}</p>
-              </div>
-          ) : (
-              <p>Bitte ein Bundesland auswählen.</p>
-          )}
+          <p>Wähle aus, welcher Inhalt in der mittleren Spalte angezeigt werden soll.</p>
         </div>
       </div>
   );
