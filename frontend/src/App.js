@@ -1,24 +1,48 @@
 import React, { useState } from 'react';
-// Importiere das SVG als React-Komponente (funktioniert mit create-react-app und SVGR)
+// Importiere das SVG als React-Komponente (funktioniert z. B. mit create-react-app und SVGR)
 import { ReactComponent as Germany } from './germany.svg';
-// CSS importieren
 import './styles.css';
+
+// Mapping der Bundesländer-IDs auf Name und Hauptstadt
+const stateData = {
+  "DE-BW": { name: "Baden-Württemberg", capital: "Stuttgart" },
+  "DE-BE": { name: "Berlin", capital: "Berlin" },
+  "DE-BB": { name: "Brandenburg", capital: "Potsdam" },
+  "DE-HB": { name: "Bremen", capital: "Bremen" },
+  "DE-HH": { name: "Hamburg", capital: "Hamburg" },
+  "DE-MV": { name: "Mecklenburg-Vorpommern", capital: "Schwerin" },
+  "DE-NI": { name: "Niedersachsen", capital: "Hannover" },
+  "DE-HE": { name: "Hessen", capital: "Wiesbaden" },
+  "DE-RP": { name: "Rheinland-Pfalz", capital: "Mainz" },
+  "DE-SL": { name: "Saarland", capital: "Saarbrücken" },
+  "DE-SN": { name: "Sachsen", capital: "Dresden" },
+  "DE-ST": { name: "Sachsen-Anhalt", capital: "Magdeburg" },
+  "DE-SH": { name: "Schleswig-Holstein", capital: "Kiel" },
+  "DE-NW": { name: "Nordrhein-Westfalen", capital: "Düsseldorf" },
+  "DE-TH": { name: "Thüringen", capital: "Erfurt" }
+};
 
 function App() {
   const [activeTab, setActiveTab] = useState(0);
+  const [selectedState, setSelectedState] = useState(null);
 
-  // Beispiel-Handler, falls du Klicks verarbeiten möchtest
+  // Handler für Klicks in der SVG-Karte
   const handleSVGClick = (event) => {
-    console.log("SVG wurde angeklickt", event);
-    // Hier kannst du später Logik ergänzen,
-    // z.B. anhand von event.target.id ermitteln, welches Bundesland geklickt wurde.
+    const stateId = event.target.id;
+    console.log("SVG geklickt, target id:", stateId);
+    if (stateData[stateId]) {
+      setSelectedState(stateData[stateId]);
+    } else {
+      // Falls z. B. außerhalb eines Pfads geklickt wurde, Auswahl löschen:
+      setSelectedState(null);
+    }
   };
 
   return (
       <div className="App" style={{ display: 'flex', height: '100vh' }}>
-        {/* Linke Spalte: Dropdown-Menüs */}
+        {/* Linke Spalte: Dropdown-Menüs (mit h1 "Menü") */}
         <div style={{ flex: 1, borderRight: '1px solid #ccc', padding: '10px', color: '#fff' }}>
-          <h2>Menüs</h2>
+          <h1>Menü</h1>
           {Array.from({ length: 8 }).map((_, index) => (
               <select
                   key={index}
@@ -71,16 +95,26 @@ function App() {
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
+                    // Dieser Container sorgt bereits dafür, dass Inhalt
+                    // vertikal angeordnet und horizontal zentriert wird:
                     alignItems: 'center',
                     textAlign: 'center',
                   }}
               >
                 <h2>Karten Visualierung</h2>
-                {/* Hier wird die interaktive SVG-Karte eingebunden */}
-                <Germany
-                    onClick={handleSVGClick}
-                    style={{ width: '80%', cursor: 'pointer' }}
-                />
+                {/* Neuer "Wrapper", der horizontal zentriert */}
+                <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                  <Germany
+                      onClick={handleSVGClick}
+                      // maxWidth und width helfen, die Karte nicht zu groß zu machen:
+                      style={{
+                        maxWidth: '600px',
+                        width: '100%',
+                        cursor: 'pointer',
+                      }}
+                  />
+                </div>
+
                 <div style={{ marginTop: '20px', width: '50%', overflow: 'hidden' }}>
                   <div
                       style={{
@@ -104,6 +138,7 @@ function App() {
               </div>
           )}
 
+
           {activeTab === 1 && (
               <div
                   style={{
@@ -120,9 +155,17 @@ function App() {
           )}
         </div>
 
-        {/* Rechte Spalte: Datensatz Attribute */}
+        {/* Rechte Spalte: Anzeige der Bundesland-Informationen */}
         <div style={{ flex: 1, padding: '10px', overflowY: 'auto', color: '#fff' }}>
-
+          <h2>Bundesland Infos</h2>
+          {selectedState ? (
+              <div>
+                <h3>{selectedState.name}</h3>
+                <p>Hauptstadt: {selectedState.capital}</p>
+              </div>
+          ) : (
+              <p>Bitte ein Bundesland auswählen.</p>
+          )}
         </div>
       </div>
   );

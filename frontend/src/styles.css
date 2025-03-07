@@ -6,19 +6,19 @@
 }
 
 body {
-  background-color: #8000;
+  background-color: #89898b;
 }
 
 /* Gestalte alle Pfade in der SVG */
 svg path {
-  fill: #00394f;
-  stroke: #eee;
+  fill: #032d63;
+  stroke: #ffffff;
   stroke-width: 0.25;
 }
 
 /* Beim Hover ändern sich Farbe und Cursor */
 svg path:hover {
-  fill: #006284;
+  fill: #0044b5;
   transition: 0.6s;
   cursor: pointer;
 }
