@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// Importiere das SVG als React-Komponente (funktioniert z. B. mit create-react-app und SVGR)
 import { ReactComponent as Germany } from './germany.svg';
 import './styles.css';
 
@@ -21,7 +22,7 @@ const stateData = {
   "DE-TH": { name: "Thüringen", capital: "Erfurt" }
 };
 
-// Überschriften und Optionen für die Filter in der linken Spalte
+// Überschriften für die Filter-Dropdowns in der linken Spalte
 const dropdownHeadings = [
   "Regionen",
   "Bundesländer",
@@ -37,6 +38,7 @@ const dropdownHeadings = [
   "Risikogruppen"
 ];
 
+// Optionen für jeden Filter (ohne "Keine Auswahl", da diese oben hinzugefügt wird)
 const filterOptions = {
   "Regionen": ["Nord", "Ost", "Süd", "West", "Zentral"],
   "Bundesländer": [
@@ -75,16 +77,17 @@ const rightModeOptions = [
   "Vergleichsdiagramm"
 ];
 
-// Extra Dropdown-Optionen für die rechte Spalte
+// Extra Dropdown-Optionen (erscheinen unter dem Haupt-Dropdown in der rechten Spalte)
+// für "Zeitlicher Verlauf" und "Vergleichsdiagramm"
 const extraOptionsMapping = {
   "Zeitlicher Verlauf": ["Zeitraum 1", "Zeitraum 2", "Zeitraum 3"],
   "Vergleichsdiagramm": ["Regionen", "Bundesländer"]
 };
 
 function App() {
-  // Initialisiere Filter für die linke Spalte
+  // Initialisiere alle linken Filter auf "Keine Auswahl"
   const initialLeftFilters = dropdownHeadings.reduce((acc, heading) => {
-    acc[heading] = filterOptions[heading][0];
+    acc[heading] = "Keine Auswahl";
     return acc;
   }, {});
 
@@ -98,7 +101,7 @@ function App() {
   );
   const [selectedYAxis, setSelectedYAxis] = useState("Impfquote");
 
-  // Handler für Klicks in der SVG-Karte
+  // Handler für Klicks in der SVG-Karte (mittlere Spalte)
   const handleSVGClick = (event) => {
     const stateId = event.target.id;
     if (stateData[stateId]) {
@@ -110,8 +113,14 @@ function App() {
 
   // API-Call, um alle ausgewählten Filter an das Backend zu senden
   const saveSelections = async () => {
+    // Transformiere die linken Filter: "Keine Auswahl" wird zu -1
+    const processedLeftFilters = {};
+    for (const key in leftFilters) {
+      processedLeftFilters[key] = leftFilters[key] === "Keine Auswahl" ? -1 : leftFilters[key];
+    }
+
     const data = {
-      leftFilters,
+      leftFilters: processedLeftFilters,
       rightSelection: {
         mode: selectedRightMode,
         extra: selectedExtra,
@@ -139,10 +148,8 @@ function App() {
     }
   };
 
-  // Optional: Auto-Speichern, wenn sich Filter ändern (anstatt auf "Anwenden" zu klicken)
+  // Auto-Speichern bei Änderungen (mit debounce möglich, hier einfach direkt)
   useEffect(() => {
-    // Beispielsweise kann hier ein debounce implementiert werden
-    // um zu vermeiden, dass zu oft API-Calls gesendet werden.
     saveSelections();
   }, [leftFilters, selectedRightMode, selectedExtra, selectedYAxis, selectedState]);
 
@@ -205,6 +212,7 @@ function App() {
                         })
                     }
                 >
+                  <option value="Keine Auswahl">Keine Auswahl</option>
                   {filterOptions[heading].map((option, idx) => (
                       <option key={idx} value={option}>
                         {option}
@@ -213,7 +221,7 @@ function App() {
                 </select>
               </div>
           ))}
-          {/* Den "Anwenden" Button in der linken Spalte entfernen, wenn er nicht mehr benötigt wird */}
+          {/* Da wir den API-Call automatisch auslösen, brauchen wir keinen "Anwenden"-Button mehr */}
         </div>
 
         {/* Mittlere Spalte: Hauptinhalt */}
@@ -319,8 +327,7 @@ function App() {
           <p>
             Wähle aus, welcher Inhalt in der mittleren Spalte angezeigt werden soll.
           </p>
-          {/* Den "Anwenden" Button in der rechten Spalte entfernen */}
-          {/* Stattdessen wird der API-Call automatisch ausgelöst (siehe useEffect) */}
+          {/* Zusätzlich gibt es hier einen "Speichern"-Button, der den API-Call manuell auslöst */}
           <button
               style={{
                 padding: '10px 20px',
