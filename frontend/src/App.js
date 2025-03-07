@@ -36,7 +36,7 @@ function App() {
                   padding: '10px',
                   backgroundColor: activeTab === 0 ? '#ccc' : '#f0f0f0',
                   border: '1px solid #ccc',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
                 }}
             >
               Karten Visualierung
@@ -48,7 +48,7 @@ function App() {
                   padding: '10px',
                   backgroundColor: activeTab === 1 ? '#ccc' : '#f0f0f0',
                   border: '1px solid #ccc',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
                 }}
             >
               Tab 2
@@ -62,7 +62,7 @@ function App() {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    textAlign: 'center'
+                    textAlign: 'center',
                   }}
               >
                 <h2>Karten Visualierung</h2>
@@ -101,7 +101,7 @@ function App() {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    height: '100%'
+                    height: '100%',
                   }}
               >
                 {/* Platzhalter für den zweiten Tab */}
@@ -111,20 +111,48 @@ function App() {
           )}
         </div>
 
-        {/* Rechte Spalte: Platzhalter */}
-        <div style={{ flex: 1, padding: '10px' }}>
-          <h2>Platzhalter</h2>
-          <div
-              style={{
-                border: '2px dashed #ccc',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-          >
-            <p>Hier kommt später der Inhalt rein.</p>
-          </div>
+        {/* Rechte Spalte: Datensatz Attribute */}
+        <div style={{ flex: 1, padding: '10px', overflowY: 'auto' }}>
+          <h2>Datensatz Attribute</h2>
+          <p>
+            Der Datensatz enthält wöchentlich aggregierte Daten zur Grippeimpfung und umfasst die folgenden Attribute:
+          </p>
+          <ul>
+            <li>
+              <strong>week:</strong>
+            </li>
+            <li>
+              <strong>kvregion:</strong>
+            </li>
+            <li>
+              <strong>region:</strong>
+            </li>
+            <li>
+              <strong>specialization:</strong>
+
+            </li>
+            <li>
+              <strong>gender:</strong>
+            </li>
+            <li>
+              <strong>age_group:</strong>
+            </li>
+            <li>
+              <strong>insurancecode:</strong>
+            </li>
+            <li>
+              <strong>insurancetype:</strong>
+            </li>
+            <li>
+              <strong>absolute:</strong>
+            </li>
+            <li>
+              <strong>extrapolated:</strong>
+            </li>
+            <li>
+              <strong>risk_groups:</strong>
+            </li>
+          </ul>
         </div>
       </div>
   );
