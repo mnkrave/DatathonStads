@@ -7,15 +7,14 @@ class AuswahlDiagramm(BaseModel):
         yAchse: str
         vglMit: str
         sortierart: str
-        sortierenBy: str
-        Region: Optional[Any] = None
-        Bundeslaender: Optional[Any] = None
-        Geschlecht: Optional[Any] = None
-        Versicherungsart: Optional[Any] = None
-        Abrechnungsziffer: Optional[Any] = None
-        Woche: Optional[Any] = None
-        Altersgruppe: Optional[Any] = None
-        Fachrichtung: Optional[Any] = None
-        Absolute_Anzahl: Optional[Any] = None
-        Extrapolierte_Impfungen: Optional[Any] = None
-        Risikogruppen: Optional[Any] = None
+        sortierenBy:str
+        Region:str
+        Bundeslaender:str
+        Geschlecht: str
+        Versicherungsart: str
+        Abrechnungsziffer:  str
+        Altersgruppe: str
+        Fachrichtung: str
+        Absolute_Anzahl:  str
+        Extrapolierte_Impfungen: str
+        Risikogruppen:  str
