@@ -6,17 +6,17 @@ class AuswahlDiagramm(BaseModel):
     diagrammart: str
     yAchse: str
     vglMit: str
-    sortierart: str  # "aufsteigend" oder "absteigend"
+    sortierart: str
     sortierenBy: str
-    Region: Optional[str]
-    Bundeslaender: Optional[str]
-    Geschlecht: Optional[str]
-    Versicherungsart: Optional[str]
-    Abrechnungsziffer: Optional[str]
-    Woche: Optional[str]
-    Altersgruppe: Optional[str]
-    Fachrichtung: Optional[str]
-    Absolute_Anzahl: Optional[str]
-    Extrapolierte_Impfungen: Optional[str]
-    Risikogruppen: Optional[str]
+    Region: Optional[str] = None
+    Bundeslaender: Optional[str] = None
+    Geschlecht: Optional[str] = None
+    Versicherungsart: Optional[str] = None
+    Abrechnungsziffer: Optional[str] = None
+    Woche: Optional[str] = None
+    Altersgruppe: Optional[str] = None
+    Fachrichtung: Optional[str] = None
+    Absolute_Anzahl: Optional[str] = None
+    Extrapolierte_Impfungen: Optional[str] = None
+    Risikogruppen: Optional[str] = None
 
