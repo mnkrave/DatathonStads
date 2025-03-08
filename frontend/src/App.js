@@ -125,11 +125,6 @@ function App() {
   // Funktion zum Erstellen des JSON-Objekts – so wie es den Backend-Modellen entspricht
   const createJsonData = () => {
     // Transformiere die linken Filter: "Keine Auswahl" wird zu "-1" und Schlüssel werden gemappt
-    const processedLeftFilters = {};
-    for (const key in leftFilters) {
-      const mappedKey = leftKeyMapping[key];
-      processedLeftFilters[mappedKey] = leftFilters[key] === "Keine Auswahl" ? "-1" : leftFilters[key];
-    }
 
     // Erstelle das Objekt für die Diagrammauswahl (AuswahlDiagramm)
     const auswahlDiagramm = {
@@ -141,10 +136,13 @@ function App() {
           : "-1",
       sortierenBy: "extrapolated"
     };
+    for (const key in leftFilters) {
+      const mappedKey = leftKeyMapping[key];
+      auswahlDiagramm[mappedKey] = leftFilters[key] === "Keine Auswahl" ? "-1" : leftFilters[key];
+    }
 
     // Finales JSON-Objekt (bei "Deutschland Map" wird selectedState ignoriert)
     const data = {
-      filterRequest: processedLeftFilters,
       auswahlDiagramm: auswahlDiagramm
     };
 
