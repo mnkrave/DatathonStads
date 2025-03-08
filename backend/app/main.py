@@ -4,16 +4,16 @@ from .models import AuswahlDiagramm  # Relativer Import bleibt
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import matplotlib.pyplot as plt
-import connector as c
+import app.connector as c
 app = FastAPI()
 
 # 🚀 CORS aktivieren
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Erlaubt ALLE Domains (für Entwicklung)
+    allow_origins=["http://localhost:3000"],  # 👈 Nur React-Frontend erlauben
     allow_credentials=True,
-    allow_methods=["*"],  # Erlaubt ALLE HTTP-Methoden (GET, POST, etc.)
-    allow_headers=["*"],  # Erlaubt ALLE Header
+    allow_methods=["*"],  # GET, POST, PUT, DELETE, etc.
+    allow_headers=["*"],  # Erlaubt alle Header (z. B. "Content-Type")
 )
 def generate_diagram():
     plt.figure(figsize=(5, 3))
