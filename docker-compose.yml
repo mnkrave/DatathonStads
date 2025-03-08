@@ -7,6 +7,8 @@ services:
     volumes:
       - ./backend:/app  # Live-Updates für backend-Code
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - mynetwork
 
   frontend:
     build: ./frontend
@@ -15,6 +17,12 @@ services:
     volumes:
       - ./frontend:/app  # Live-Updates für Frontend-Code
       - /app/node_modules
+    environment:
+      - REACT_APP_BACKEND_URL=http://backend:8000
     depends_on:
       - backend
+    networks:
+      - mynetwork
     command: npm start
+networks:
+  mynetwork:

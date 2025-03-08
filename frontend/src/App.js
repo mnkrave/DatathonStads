@@ -95,6 +95,7 @@ const leftKeyMapping = {
 };
 
 function App() {
+    const [imageSrc, setImageSrc] = useState(null); // ✅ useState für das Bild
   // Initialisiere alle linken Filter auf "Keine Auswahl"
   const initialLeftFilters = dropdownHeadings.reduce((acc, heading) => {
     acc[heading] = "Keine Auswahl";
@@ -124,31 +125,29 @@ function App() {
 
   // Funktion zum Erstellen des JSON-Objekts – so wie es den Backend-Modellen entspricht
   const createJsonData = () => {
-    // Transformiere die linken Filter: "Keine Auswahl" wird zu "-1" und Schlüssel werden gemappt
-    const processedLeftFilters = {};
-    for (const key in leftFilters) {
-      const mappedKey = leftKeyMapping[key];
-      processedLeftFilters[mappedKey] = leftFilters[key] === "Keine Auswahl" ? "-1" : leftFilters[key];
-    }
+    // Transformiere die linken Filter: "Keine Auswahl" wird zu null und Schlüssel werden gemappt
 
     // Erstelle das Objekt für die Diagrammauswahl (AuswahlDiagramm)
     const auswahlDiagramm = {
-      diagrammart: selectedRightMode,
-      yAchse: selectedRightMode === "Vergleichsdiagramm" ? selectedYAxis : "",
-      vglMit: selectedExtra,
-      sortierart: (selectedRightMode === "Vergleichsdiagramm" || selectedRightMode === "Zeitlicher Verlauf")
-          ? selectedSortierart
-          : ""
+        diagrammart: selectedRightMode,
+        yAchse: selectedRightMode === "Vergleichsdiagramm" ? selectedYAxis : "",
+        vglMit: selectedExtra,
+        sortierart: (selectedRightMode === "Vergleichsdiagramm" || selectedRightMode === "Zeitlicher Verlauf")
+            ? selectedSortierart
+            : null,  // ✅ "-1" durch `null` ersetzt
+        sortierenBy: "extrapolated"
     };
+
+    // Loop durch alle linken Filter und wandle "Keine Auswahl" in `null` um
+    for (const key in leftFilters) {
+        const mappedKey = leftKeyMapping[key];
+        auswahlDiagramm[mappedKey] = leftFilters[key] === "Keine Auswahl" ? null : leftFilters[key];
+    }
 
     // Finales JSON-Objekt (bei "Deutschland Map" wird selectedState ignoriert)
-    const data = {
-      filterRequest: processedLeftFilters,
-      auswahlDiagramm: auswahlDiagramm
-    };
+    return auswahlDiagramm;
+};
 
-    return data;
-  };
 
   // Methode, um das aktuell erstellte JSON zurückzugeben
   const getCurrentJson = () => {
@@ -157,26 +156,39 @@ function App() {
 
   // API-Call, um die JSON-Daten an das Backend zu senden
   const saveSelections = async () => {
-    const data = createJsonData();
+  const data = createJsonData(); // JSON-Daten für das Diagramm erstellen
 
-    try {
-      const response = await fetch("http://127.0.0.1:8000/diagram", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      });
+  try {
+    const response = await fetch("http://localhost:8000/diagram", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
 
-      if (!response.ok) {
-        console.error("Fehler beim Senden der Daten:", response.statusText);
-      } else {
-        console.log("Daten erfolgreich an das Backend gesendet!");
-      }
-    } catch (error) {
-      console.error("Netzwerkfehler:", error);
+    if (!response.ok) {
+      console.error("Fehler beim Senden der Daten:", response.statusText);
+      return;
     }
-  };
+
+    // Prüfen, ob die Antwort ein Bild ist
+    const contentType = response.headers.get("Content-Type");
+
+    if (contentType && contentType.startsWith("image/")) {
+      // Bild als Blob empfangen und in `setImageSrc` speichern
+      const blob = await response.blob();
+      setImageSrc(URL.createObjectURL(blob));
+      console.log("Diagramm erfolgreich geladen!");
+    } else {
+      // Falls die API-Response JSON ist, dann normale Daten ausgeben
+      const result = await response.json();
+      console.log("Daten erfolgreich an das Backend gesendet!", result);
+    }
+  } catch (error) {
+    console.error("Netzwerkfehler:", error);
+  }
+};
 
   // Auto-Speichern bei Änderungen (ohne Debounce)
   useEffect(() => {
@@ -215,6 +227,7 @@ function App() {
           <p>Vergleich: {selectedExtra}</p>
           <p>Y-Achse: {selectedYAxis}</p>
           <p>(Weitere Inhalte folgen...)</p>
+            {imageSrc && <img src={imageSrc} alt="Generiertes Diagramm" style={{ maxWidth: "100%", height: "auto" }} />}
         </div>
     );
   }
