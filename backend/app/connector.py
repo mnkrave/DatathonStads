@@ -1,18 +1,38 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import createPlot as cp
+test_dict = {
+    "diagrammart": "vergleichsgraph",
+    "yAchse" : "Absolute Werte",
+    "vglMit": "Bundeslaender",
+    "sortierart": "Ascending",
+    "Region": "-1",
+    "Bundeslaender": "-1",
+    "Geschlecht": "Mann",
+    "Versicherungsart": "-1",
+    "Abrechnungsziffer": "-1",
+    "Woche": "-1",  # Beispiel: Kalenderwoche 12
+    "KV_Region": "-1",
+    "Altersgruppe": "30-59",
+    "Fachrichtung": "-1",
+    "Absolute_Anzahl": "-1",
+    "Extrapolierte_Impfungen": "-1",  # Falls nicht ausgewählt
+    "Risikogruppen": "-1"
+}
 
-
-
-
+dff = pd.read_csv("D:/Datathon/backend/Data/data.csv",encoding='utf-8', delimiter=';')
+def connect(dc : dict) -> plt:
+    return cp.create_plot_from_dict(cleanUp(dc),dff)
 
 
 def cleanUp(dc : dict) -> dict:
     column_mapping = {
-    "Region": "kvregion",
-    "Bundeslaender": "region",
+    "Bundeslaender": "kvregion",
+    "Region": "region",
     "Abrechnungsziffer": "insurancecode",
     "Geschlecht": "gender",
     "Versicherungsart": "insurancetype",
     "Woche": "week",
-    "KV_Region": "kvregion",
     "Altersgruppe": "age_group",
     "Fachrichtung": "specialization",
     "Absolute_Anzahl": "absolute",
@@ -31,5 +51,10 @@ def cleanUp(dc : dict) -> dict:
         converted_dict["gender"] = "m"
     elif converted_dict["gender"] == "Frau":
         converted_dict["gender"] = "f"
+    elif converted_dict["gender"] == "-1":
+        converted_dict["gender"] = "-1"
     else:
         converted_dict["gender"] = "d"
+    return converted_dict
+
+connect(test_dict)

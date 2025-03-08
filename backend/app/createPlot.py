@@ -1,11 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from models import AuswahlDiagramm, FilterRequest
-from pydantic import ValidationError
-import json
-
-df = pd.read_csv("C:/Users/maxge/PycharmProjects/DatathonStads/Data/cgm-datathon-challenge-flu_riskgroupsv1.csv", delimiter=';')
+import  filter as ft
+import itertools
+#df = pd.read_csv("C:/Users/maxge/PycharmProjects/DatathonStads/Data/cgm-datathon-challenge-flu_riskgroupsv1.csv", delimiter=';')
 
 data = {
     "diagrammart": "Liniendiagramm",
@@ -20,10 +18,14 @@ data = {
 }
 
 
-def create_plot_from_dict(data):
+def create_plot_from_dict(data : dict, df : pd.DataFrame ):
     # Load the data
     #df = pd.read_csv("C:/Users/maxge/PycharmProjects/DatathonStads/Data/cgm-datathon-challenge-flu_riskgroupsv1.csv",  delimiter=';')
-    df_sorted = data  # Assuming no filtering is applied for now
+    keys_to_remove = {"vglMit", "yAchse", "diagrammart"}
+    # Neues Dictionary ohne die unerwünschten Schlüssel
+    data_neu = {key: value for key, value in data.items() if key not in keys_to_remove}
+    print(data_neu)
+    df_sorted = ft.filter(df,data_neu)  # Assuming no filtering is applied for now
 
     # Check the type of plot to create
     if data.get("diagrammart") == "zeitgraph":
@@ -51,6 +53,7 @@ def create_plot_from_dict(data):
     elif data.get("diagrammart") == "vergleichsgraph":
         # Create the Vergleichsgraph
         plt.figure(figsize=(12, 6))
+        df_sorted = df_sorted.groupby(data.get("vglMit"), as_index=False)["extrapolated"].sum()
         sns.barplot(data=df_sorted, x=data.get("vglMit"), y="extrapolated", palette="viridis")
 
         # Customize the plot
