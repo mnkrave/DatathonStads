@@ -93,7 +93,7 @@ const leftKeyMapping = {
   "Extrapolierte Impfungen": "Extrapolierte_Impfungen",
   "Risikogruppen": "Risikogruppen"
 };
-
+const [imageSrc, setImageSrc] = useState(null); // ✅ useState für das Bild
 function App() {
   // Initialisiere alle linken Filter auf "Keine Auswahl"
   const initialLeftFilters = dropdownHeadings.reduce((acc, heading) => {
