@@ -155,29 +155,39 @@ function App() {
 
   // API-Call, um die JSON-Daten an das Backend zu senden
   const saveSelections = async () => {
-      const data = createJsonData();
+  const data = createJsonData(); // JSON-Daten für das Diagramm erstellen
 
+  try {
+    const response = await fetch("http://localhost:8000/diagram", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
 
-
-    try {
-      const response = await fetch("http://localhost:8000/diagram", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      });
-
-      if (!response.ok) {
-        console.error("Fehler beim Senden der Daten:", response.statusText);
-      } else {
-          const result = await response.json()
-        console.log("Daten erfolgreich an das Backend gesendet!", result);
-      }
-    } catch (error) {
-      console.error("Netzwerkfehler:", error);
+    if (!response.ok) {
+      console.error("Fehler beim Senden der Daten:", response.statusText);
+      return;
     }
-  };
+
+    // Prüfen, ob die Antwort ein Bild ist
+    const contentType = response.headers.get("Content-Type");
+
+    if (contentType && contentType.startsWith("image/")) {
+      // Bild als Blob empfangen und in `setImageSrc` speichern
+      const blob = await response.blob();
+      setImageSrc(URL.createObjectURL(blob));
+      console.log("Diagramm erfolgreich geladen!");
+    } else {
+      // Falls die API-Response JSON ist, dann normale Daten ausgeben
+      const result = await response.json();
+      console.log("Daten erfolgreich an das Backend gesendet!", result);
+    }
+  } catch (error) {
+    console.error("Netzwerkfehler:", error);
+  }
+};
 
   // Auto-Speichern bei Änderungen (ohne Debounce)
   useEffect(() => {
@@ -216,6 +226,7 @@ function App() {
           <p>Vergleich: {selectedExtra}</p>
           <p>Y-Achse: {selectedYAxis}</p>
           <p>(Weitere Inhalte folgen...)</p>
+            {imageSrc && <img src={imageSrc} alt="Generiertes Diagramm" style={{ maxWidth: "100%", height: "auto" }} />}
         </div>
     );
   }
