@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
+import os
 
 app = FastAPI()
 
@@ -6,12 +8,9 @@ app = FastAPI()
 def read_root():
     return {"message": "Hello, FastAPI is running!"}
 
-@app.get("/diagram")
-def read_root(settings: dict):
-    test_data = {
-            "x_values": [1, 2, 3, 4, 5],
-            "y_values": [10, 15, 7, 20, 12],
-            "color": "red",
-            "title": "Test-Diagramm"
-        }
-    return test_data
+@app.get("/image")
+def get_image():
+    # Pfad anpassen: Hier wird angenommen, dass "ist.png" im selben Ordner wie main.py liegt
+    # oder in einem Unterordner wie "./images/ist.png".
+    file_path = os.path.join("images","test.png")
+    return FileResponse(file_path, media_type="image/png")
