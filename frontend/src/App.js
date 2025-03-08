@@ -161,28 +161,51 @@ function App() {
     return createJsonData();
   };
 
+
+  const [imageSrc, setImageSrc] = useState(null);
   // API-Call, um die JSON-Daten an das Backend zu senden
-  const saveSelections = async () => {
-    const data = createJsonData();
+    const saveSelections = async () => {
+        // 1) JSON-Daten erstellen, z.B.:
+        const data = {
+            diagrammart: selectedRightMode,
+            yAchse: selectedYAxis,
+            vglMit: selectedExtra,
+            sortierart: selectedSortierart,
+            Region: leftFilters["Regionen"] === "Keine Auswahl" ? "-1" : leftFilters["Regionen"],
+            // usw...
+        };
 
-    try {
-      const response = await fetch("http://127.0.0.1:8000/diagram", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      });
+        try {
+            // 2) POST-Request ans Backend
+            const response = await fetch("http://localhost:8000/get_image/test_image", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
 
-      if (!response.ok) {
-        console.error("Fehler beim Senden der Daten:", response.statusText);
-      } else {
-        console.log("Daten erfolgreich an das Backend gesendet!");
-      }
-    } catch (error) {
-      console.error("Netzwerkfehler:", error);
-    }
-  };
+            if (!response.ok) {
+                console.error("Fehler beim Senden der Daten:", response.statusText);
+                return;
+            }
+
+            // 3) JSON-Antwort auslesen
+            const responseData = await response.json();
+            console.log("Received data from server:", responseData);
+            // 4) Base64-String aus der Antwort extrahieren
+            const base64Image = responseData.image_base64;
+
+            // 5) Falls vorhanden, als <img> anzeigen
+            if (base64Image) {
+                // Erzeugt z.B. "data:image/png;base64, iVBORw0KGgo..."
+                const imageUrl = `data:image/png;base64,${base64Image}`;
+                setImageSrc(imageUrl); // => State-Variable, um im JSX <img src={imageSrc} /> zu setzen
+            }
+        } catch (error) {
+            console.error("Netzwerkfehler:", error);
+        }
+    };
 
   // Auto-Speichern bei Änderungen (ohne Debounce)
   useEffect(() => {
@@ -221,17 +244,25 @@ function App() {
         </div>
     );
   } else if (selectedRightMode === "Vergleichsdiagramm") {
-    mainContent = (
-        <div style={{ textAlign: "center" }}>
-          <h2>Vergleichsdiagramm</h2>
-          <p>Vergleich: {selectedExtra}</p>
-          <p>Y-Achse: {selectedYAxis}</p>
-          <p>(Weitere Inhalte folgen...)</p>
-          <pre style={{ backgroundColor: "#333", padding: "10px", borderRadius: "4px", color: "#fff", textAlign: "left" }}>
-          {JSON.stringify(createJsonData(), null, 2)}
-        </pre>
-        </div>
-    );
+      // API-Call ausführen
+
+
+
+      mainContent = (
+          <div>
+              <h3>Vergleichsdiagramm</h3>
+
+              {imageSrc ? <img src={imageSrc} alt="Geladenes Bild" /> : <p>Lade Bild...</p>}
+          </div>
+
+  )
+      //fetch("http://localhost:8000/get_image/test_image", {
+        //  method: "POST",
+         // headers: {
+       //       "Content-Type": "application/json"
+         // },
+         // body: createJsonData() // JSON senden
+      //}<img id="vergleichsbild" alt="Geladenes Bild" />
   }
 
   return (
@@ -422,7 +453,7 @@ function App() {
                     width: "100%",
                     fontSize: "16px"
                   }}
-                  onClick={saveSelections}
+                 onClick={saveSelections}
               >
                 Speichern
               </button>

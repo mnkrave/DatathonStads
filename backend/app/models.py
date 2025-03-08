@@ -19,10 +19,15 @@ class FilterRequest(BaseModel):
     Versicherungsart: Optional[str]
     Abrechnungsziffer: Optional[str]
     Woche: Optional[str]
-    KV_Region: Optional[str]
     Altersgruppe: Optional[str]
     Fachrichtung: Optional[str]
     Absolute_Anzahl: Optional[str]
     Extrapolierte_Impfungen: Optional[str]
     Risikogruppen: Optional[str]
 
+class DiagramResponse(BaseModel):
+    # Base64-kodiertes Bild
+    image_base64: str
+
+    # Optional: zusätzliche Felder, falls ihr Metadaten zurückgeben möchtet
+    # z.B. info: str = "Hier könnte eine Info stehen"
