@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import createPlot as cp
+import app.createPlot as cp
 from pathlib import Path
 test_dict = {
     "diagrammart": "vergleichsgraph",
@@ -22,7 +22,7 @@ test_dict = {
     "Risikogruppen": "-1"
 }
 
-dff = pd.read_csv("D:/Datathon/backend/Data/data.csv",encoding='utf-8', delimiter=';')
+dff = pd.read_csv("Data/data.csv",encoding='utf-8', delimiter=';')
 def connect(dc : dict) -> str:
     filename = "diagram.png"
     plt = cp.create_plot_from_dict(cleanUp(dc), dff)
@@ -40,7 +40,7 @@ def connect(dc : dict) -> str:
 def cleanUp(dc : dict) -> dict:
     column_mapping = {
     "Bundeslaender": "kvregion",
-    "Region": "region",
+    "Regionen": "region",
     "Abrechnungsziffer": "insurancecode",
     "Geschlecht": "gender",
     "Versicherungsart": "insurancetype",

@@ -161,8 +161,10 @@ function App() {
   try {
     const response = await fetch("http://localhost:8000/diagram", {
       method: "POST",
+      mode: 'no-cors',
       headers: {
         "Content-Type": "application/json"
+
       },
       body: JSON.stringify(data)
     });

@@ -1,16 +1,16 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from .models import AuswahlDiagramm  # Relativer Import bleibt
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import matplotlib.pyplot as plt
-import connector as c
+import app.connector as c
 app = FastAPI()
 
 # 🚀 CORS aktivieren
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Erlaubt ALLE Domains (für Entwicklung)
+    allow_origins=["http://localhost:8000"],  # Erlaubt ALLE Domains (für Entwicklung)
     allow_credentials=True,
     allow_methods=["*"],  # Erlaubt ALLE HTTP-Methoden (GET, POST, etc.)
     allow_headers=["*"],  # Erlaubt ALLE Header

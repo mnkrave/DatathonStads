@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import  filter as ft
+import  app.filter as ft
 import itertools
 #df = pd.read_csv("C:/Users/maxge/PycharmProjects/DatathonStads/Data/cgm-datathon-challenge-flu_riskgroupsv1.csv", delimiter=';')
 

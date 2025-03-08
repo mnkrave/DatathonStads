@@ -1,22 +1,22 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional,Any
 
 # Modell für Diagrammauswahl
 class AuswahlDiagramm(BaseModel):
-    diagrammart: str
-    yAchse: str
-    vglMit: str
-    sortierart: str
-    sortierenBy: str
-    Region: Optional[str] = None
-    Bundeslaender: Optional[str] = None
-    Geschlecht: Optional[str] = None
-    Versicherungsart: Optional[str] = None
-    Abrechnungsziffer: Optional[str] = None
-    Woche: Optional[str] = None
-    Altersgruppe: Optional[str] = None
-    Fachrichtung: Optional[str] = None
-    Absolute_Anzahl: Optional[str] = None
-    Extrapolierte_Impfungen: Optional[str] = None
-    Risikogruppen: Optional[str] = None
-
+    class AuswahlDiagramm(BaseModel):
+        diagrammart: str
+        yAchse: str
+        vglMit: str
+        sortierart: str
+        sortierenBy: str
+        Region: Optional[Any] = None
+        Bundeslaender: Optional[Any] = None
+        Geschlecht: Optional[Any] = None
+        Versicherungsart: Optional[Any] = None
+        Abrechnungsziffer: Optional[Any] = None
+        Woche: Optional[Any] = None
+        Altersgruppe: Optional[Any] = None
+        Fachrichtung: Optional[Any] = None
+        Absolute_Anzahl: Optional[Any] = None
+        Extrapolierte_Impfungen: Optional[Any] = None
+        Risikogruppen: Optional[Any] = None
