@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-// Importiere das SVG als React-Komponente (funktioniert z. B. mit create-react-app und SVGR)
 import { ReactComponent as Germany } from './germany.svg';
+import frauenImg from './frauen.png';
+import mannImg from './mann.png';
 import './styles.css';
 
 // Mapping der Bundesländer-IDs auf Name und Hauptstadt
@@ -22,7 +23,27 @@ const stateData = {
   "DE-TH": { name: "Thüringen", capital: "Erfurt" }
 };
 
-// Überschriften für die Filter-Dropdowns in der linken Spalte (wie im Backend‑Modell erwartet)
+// Beispiel-Daten für Hessen in gewünschter Reihenfolge
+const hessenData = [
+  { kategorie: "Gesamt absolute Impfungen", wert: 28594 },
+  { kategorie: "Gesamt extrapolierte Impfungen", wert: 1166412 },
+  { kategorie: "GKV Versicherte", wert: 25539 },
+  { kategorie: "PKV Versicherte", wert: 3055 },
+  { kategorie: "Männer geimpft", wert: 12932 },
+  { kategorie: "Frauen geimpft", wert: 15654 },
+  { kategorie: "Risikogruppe Hypertonie", wert: 2873 },
+  { kategorie: "Risikogruppe Diabetes T2", wert: 1182 },
+  { kategorie: "Risikogruppe Asthma", wert: 514 },
+  { kategorie: "Risikogruppe Chronische Herzkreislauf", wert: 671 },
+  { kategorie: "Risikogruppe COPD", wert: 415 },
+  { kategorie: "Risikogruppe Chronische Leberkrankheit", wert: 334 },
+  { kategorie: "Risikogruppe Diabetes T1", wert: 46 },
+  { kategorie: "Altersgruppe 0-29 absolute", wert: 607 },
+  { kategorie: "Altersgruppe 30-59 absolute", wert: 4957 },
+  { kategorie: "Altersgruppe 60- absolute", wert: 23030 },
+];
+
+// Überschriften für die Filter-Dropdowns
 const dropdownHeadings = [
   "Regionen",
   "Bundesländer",
@@ -36,7 +57,7 @@ const dropdownHeadings = [
   "Risikogruppen"
 ];
 
-// Optionen für jeden Filter (ohne "Keine Auswahl" – diese fügen wir als erste Option ein)
+// Optionen für jeden Filter
 const filterOptions = {
   "Regionen": ["Region Nord", "Region Ost", "Region Süd", "Region West", "Region Zentral"],
   "Bundesländer": [
@@ -59,28 +80,27 @@ const filterOptions = {
   "Geschlecht": ["Männlich", "Weiblich", "Divers", "Keine Angabe"],
   "Versicherungsart": ["GKV", "PKV", "Sonstige"],
   "Abrechnungsziffer": ["EBM", "GOÄ", "Sonstiges"],
-  "Altersgruppe": ["0-18", "19-35", "36-60", "60+"],
+  "Altersgruppe": ["0-18", "19-35", "30-59", "60+"],
   "Fachrichtung": ["Allgemeinmedizin", "Innere Medizin", "Pädiatrie", "Gynäkologie", "Chirurgie"],
   "Absolute Anzahl": ["Niedrig", "Mittel", "Hoch"],
-  "Extrapolierte Impfungen": ["Niedrig", "Mittel", "Hoch"],
+  "Extrapolierte Impfungen": ["Jahr"],
   "Risikogruppen": ["Keine", "Senioren", "Kinder", "Chronische Erkrankungen"]
 };
 
-// Optionen für das Haupt-Dropdown in der rechten Spalte
+// Haupt-Dropdown in der rechten Spalte
 const rightModeOptions = [
   "Zeitlicher Verlauf",
   "Deutschland Map",
   "Vergleichsdiagramm"
 ];
 
-// Extra Dropdown-Optionen (erscheinen unter dem Haupt-Dropdown in der rechten Spalte)
-// für "Zeitlicher Verlauf" und "Vergleichsdiagramm"
+// Zusätzliche Dropdown-Optionen in der rechten Spalte
 const extraOptionsMapping = {
   "Zeitlicher Verlauf": ["Zeitraum 1", "Zeitraum 2", "Zeitraum 3"],
   "Vergleichsdiagramm": ["Regionen", "Bundesländer"]
 };
 
-// Mapping, um die Schlüssel der linken Filter in die vom Backend‑Modell erwarteten Schlüssel umzuwandeln
+// Mapping für die Filter-Schlüssel
 const leftKeyMapping = {
   "Regionen": "Region",
   "Bundesländer": "Bundeslaender",
@@ -95,24 +115,34 @@ const leftKeyMapping = {
 };
 
 function App() {
-  // Initialisiere alle linken Filter auf "Keine Auswahl"
-  const initialLeftFilters = dropdownHeadings.reduce((acc, heading) => {
-    acc[heading] = "Keine Auswahl";
-    return acc;
-  }, {});
+  // Initiale Filter-Werte, wie in deinem Screenshot 2
+  const initialLeftFilters = {
+    "Regionen": "Region Süd",
+    "Bundesländer": "Baden-Württemberg",
+    "Geschlecht": "Weiblich",               // <--- Standard auf Weiblich
+    "Versicherungsart": "GKV",
+    "Abrechnungsziffer": "Keine Auswahl",
+    "Altersgruppe": "60+",
+    "Fachrichtung": "Allgemeinmedizin",
+    "Absolute Anzahl": "Keine Auswahl",
+    "Extrapolierte Impfungen": "Keine Auswahl",
+    "Risikogruppen": "Chronische Erkrankungen"
+  };
 
   const [leftFilters, setLeftFilters] = useState(initialLeftFilters);
   const [selectedState, setSelectedState] = useState(null);
-  const [selectedRightMode, setSelectedRightMode] = useState("Deutschland Map");
-  const [selectedExtra, setSelectedExtra] = useState(
-      extraOptionsMapping["Deutschland Map"]
-          ? extraOptionsMapping["Deutschland Map"][0]
-          : ""
-  );
+
+  // Standardmäßig "Zeitlicher Verlauf" als Ansicht
+  const [selectedRightMode, setSelectedRightMode] = useState("Zeitlicher Verlauf");
+
+  // Für zusätzliche Auswahl im rechten Bereich (z.B. Zeiträume)
+  const [selectedExtra, setSelectedExtra] = useState("");
+
+  // Für Vergleichsdiagramm
   const [selectedYAxis, setSelectedYAxis] = useState("Impfquote");
   const [selectedSortierart, setSelectedSortierart] = useState("aufsteigend");
 
-  // Handler für Klicks in der SVG-Karte (mittlere Spalte)
+  // Klick auf Bundesland in der SVG
   const handleSVGClick = (event) => {
     const stateId = event.target.id;
     if (stateData[stateId]) {
@@ -122,43 +152,35 @@ function App() {
     }
   };
 
-  // Funktion zum Erstellen des JSON-Objekts – so wie es den Backend-Modellen entspricht
+  // Erstellen des JSON fürs Backend
   const createJsonData = () => {
-    // Transformiere die linken Filter: "Keine Auswahl" wird zu "-1" und Schlüssel werden gemappt
+    // Filter transformieren
     const processedLeftFilters = {};
     for (const key in leftFilters) {
       const mappedKey = leftKeyMapping[key];
-      processedLeftFilters[mappedKey] = leftFilters[key] === "Keine Auswahl" ? "-1" : leftFilters[key];
+      processedLeftFilters[mappedKey] =
+          leftFilters[key] === "Keine Auswahl" ? "-1" : leftFilters[key];
     }
 
-    // Erstelle das Objekt für die Diagrammauswahl (AuswahlDiagramm)
+    // Diagramm-Auswahl
     const auswahlDiagramm = {
       diagrammart: selectedRightMode,
       yAchse: selectedRightMode === "Vergleichsdiagramm" ? selectedYAxis : "",
       vglMit: selectedExtra,
-      sortierart: (selectedRightMode === "Vergleichsdiagramm" || selectedRightMode === "Zeitlicher Verlauf")
-          ? selectedSortierart
-          : ""
+      sortierart:
+          selectedRightMode === "Vergleichsdiagramm" ? selectedSortierart : ""
     };
 
-    // Finales JSON-Objekt (bei "Deutschland Map" wird selectedState ignoriert)
-    const data = {
+    // Zusammenfügen
+    return {
       filterRequest: processedLeftFilters,
-      auswahlDiagramm: auswahlDiagramm
+      auswahlDiagramm
     };
-
-    return data;
   };
 
-  // Methode, um das aktuell erstellte JSON zurückzugeben
-  const getCurrentJson = () => {
-    return createJsonData();
-  };
-
-  // API-Call, um die JSON-Daten an das Backend zu senden
+  // Senden an Backend
   const saveSelections = async () => {
     const data = createJsonData();
-
     try {
       const response = await fetch("http://127.0.0.1:8000/diagram", {
         method: "POST",
@@ -167,7 +189,6 @@ function App() {
         },
         body: JSON.stringify(data)
       });
-
       if (!response.ok) {
         console.error("Fehler beim Senden der Daten:", response.statusText);
       } else {
@@ -178,24 +199,57 @@ function App() {
     }
   };
 
-  // Auto-Speichern bei Änderungen (ohne Debounce)
+  // Automatisch speichern bei jedem Update
   useEffect(() => {
     saveSelections();
-  }, [leftFilters, selectedRightMode, selectedExtra, selectedYAxis, selectedSortierart, selectedState]);
+  }, [
+    leftFilters,
+    selectedRightMode,
+    selectedExtra,
+    selectedYAxis,
+    selectedSortierart,
+    selectedState
+  ]);
 
+  // Hauptbereich (mittlere Spalte)
   let mainContent;
+
   if (selectedRightMode === "Zeitlicher Verlauf") {
-    mainContent = (
-        <div style={{ textAlign: "center" }}>
-          <h2>Zeitlicher Verlauf</h2>
-          <p>Gewählter Zeitraum: {selectedExtra}</p>
-          <p>(Weitere Inhalte folgen...)</p>
-        </div>
-    );
+    // **Hier wird je nach Geschlecht das passende Bild angezeigt**
+    if (leftFilters["Geschlecht"] === "Weiblich") {
+      mainContent = (
+          <div style={{ textAlign: "center" }}>
+            <img
+                src={frauenImg}
+                alt="Frauen"
+                style={{ maxWidth: "100%", height: "auto" }}
+            />
+          </div>
+      );
+    } else if (leftFilters["Geschlecht"] === "Männlich") {
+      mainContent = (
+          <div style={{ textAlign: "center" }}>
+            <img
+                src={mannImg}
+                alt="Männer"
+                style={{ maxWidth: "100%", height: "auto" }}
+            />
+          </div>
+      );
+    } else {
+      // Falls du nichts anzeigen willst, wenn ein anderes Geschlecht gewählt ist:
+      mainContent = (
+          <div style={{ textAlign: "center" }}>
+            <p style={{ color: "blue" }}>
+              Kein passendes Bild für die aktuelle Auswahl
+            </p>
+          </div>
+      );
+    }
   } else if (selectedRightMode === "Deutschland Map") {
     mainContent = (
         <div style={{ textAlign: "center" }}>
-          <h2>Deutschland Map</h2>
+          <h2 style={{ color: "blue" }}>Deutschland Map</h2>
           <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
             <Germany
                 onClick={handleSVGClick}
@@ -211,10 +265,10 @@ function App() {
   } else if (selectedRightMode === "Vergleichsdiagramm") {
     mainContent = (
         <div style={{ textAlign: "center" }}>
-          <h2>Vergleichsdiagramm</h2>
-          <p>Vergleich: {selectedExtra}</p>
-          <p>Y-Achse: {selectedYAxis}</p>
-          <p>(Weitere Inhalte folgen...)</p>
+          <h2 style={{ color: "blue" }}>Vergleichsdiagramm</h2>
+          <p style={{ color: "blue" }}>Vergleich: {selectedExtra}</p>
+          <p style={{ color: "blue" }}>Y-Achse: {selectedYAxis}</p>
+          <p style={{ color: "blue" }}>(Weitere Inhalte folgen...)</p>
         </div>
     );
   }
@@ -228,15 +282,15 @@ function App() {
                   flex: 1,
                   borderRight: "1px solid #ccc",
                   padding: "10px",
-                  color: "#fff"
+                  color: "blue"
                 }}
             >
-              <h1>Filter</h1>
+              <h1 style={{ color: "blue" }}>Filter</h1>
               {dropdownHeadings.map((heading, index) => (
                   <div key={index} style={{ marginBottom: "15px" }}>
-                    <h3 style={{ marginBottom: "5px" }}>{heading}</h3>
+                    <h3 style={{ marginBottom: "5px", color: "blue" }}>{heading}</h3>
                     <select
-                        style={{ width: "100%" }}
+                        style={{ width: "100%", color: "blue" }}
                         value={leftFilters[heading]}
                         onChange={(e) =>
                             setLeftFilters({
@@ -262,7 +316,7 @@ function App() {
             style={{
               flex: selectedRightMode !== "Deutschland Map" ? 2 : 3,
               padding: "10px",
-              color: "#fff",
+              color: "blue",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -278,10 +332,10 @@ function App() {
               flex: 1,
               borderLeft: "1px solid #ccc",
               padding: "10px",
-              color: "#fff"
+              color: "blue"
             }}
         >
-          <h2>Inhalt auswählen</h2>
+          <h2 style={{ color: "blue" }}>Inhalt auswählen</h2>
           <select
               value={selectedRightMode}
               onChange={(e) => {
@@ -297,7 +351,8 @@ function App() {
                 width: "100%",
                 marginBottom: "15px",
                 fontSize: "16px",
-                padding: "8px"
+                padding: "8px",
+                color: "blue"
               }}
           >
             {rightModeOptions.map((option, index) => (
@@ -307,30 +362,33 @@ function App() {
             ))}
           </select>
 
-          {extraOptionsMapping[selectedRightMode] && (
-              <select
-                  value={selectedExtra}
-                  onChange={(e) => setSelectedExtra(e.target.value)}
-                  style={{
-                    width: "100%",
-                    marginBottom: "15px",
-                    fontSize: "16px",
-                    padding: "8px"
-                  }}
-              >
-                {extraOptionsMapping[selectedRightMode].map((option, index) => (
-                    <option key={index} value={option}>
-                      {option}
-                    </option>
-                ))}
-              </select>
-          )}
+          {/* Extra-Dropdown nur für Vergleichsdiagramm */}
+          {selectedRightMode === "Vergleichsdiagramm" &&
+              extraOptionsMapping[selectedRightMode] && (
+                  <select
+                      value={selectedExtra}
+                      onChange={(e) => setSelectedExtra(e.target.value)}
+                      style={{
+                        width: "100%",
+                        marginBottom: "15px",
+                        fontSize: "16px",
+                        padding: "8px",
+                        color: "blue"
+                      }}
+                  >
+                    {extraOptionsMapping[selectedRightMode].map((option, index) => (
+                        <option key={index} value={option}>
+                          {option}
+                        </option>
+                    ))}
+                  </select>
+              )}
 
-          {/* Radio-Buttons für Sortierart – nur anzeigen für Zeitlicher Verlauf und Vergleichsdiagramm */}
-          {(selectedRightMode === "Zeitlicher Verlauf" || selectedRightMode === "Vergleichsdiagramm") && (
-              <div style={{ marginBottom: "15px" }}>
-                <h3 style={{ marginBottom: "5px" }}>Sortierart</h3>
-                <label>
+          {/* Sortierart nur für Vergleichsdiagramm */}
+          {selectedRightMode === "Vergleichsdiagramm" && (
+              <div style={{ marginBottom: "15px", color: "blue" }}>
+                <h3 style={{ marginBottom: "5px", color: "blue" }}>Sortierart</h3>
+                <label style={{ color: "blue" }}>
                   <input
                       type="radio"
                       name="sortierart"
@@ -340,7 +398,7 @@ function App() {
                   />
                   Aufsteigend
                 </label>
-                <label style={{ marginLeft: "10px" }}>
+                <label style={{ marginLeft: "10px", color: "blue" }}>
                   <input
                       type="radio"
                       name="sortierart"
@@ -353,49 +411,59 @@ function App() {
               </div>
           )}
 
-          {selectedRightMode === "Vergleichsdiagramm" && (
-              <div style={{ marginBottom: "15px" }}>
-                <h3 style={{ marginBottom: "5px" }}>Y-Achse</h3>
-                <label>
-                  <input
-                      type="radio"
-                      name="yAxis"
-                      value="Impfquote"
-                      checked={selectedYAxis === "Impfquote"}
-                      onChange={(e) => setSelectedYAxis(e.target.value)}
-                  />
-                  Impfquote
-                </label>
-                <label style={{ marginLeft: "10px" }}>
-                  <input
-                      type="radio"
-                      name="yAxis"
-                      value="Impfzahl"
-                      checked={selectedYAxis === "Impfzahl"}
-                      onChange={(e) => setSelectedYAxis(e.target.value)}
-                  />
-                  Impfzahl
-                </label>
-              </div>
-          )}
-
           {selectedRightMode === "Deutschland Map" && (
               <div style={{ marginTop: "20px" }}>
                 {selectedState ? (
-                    <div>
-                      <h3>{selectedState.name}</h3>
-                      <p>Hauptstadt: {selectedState.capital}</p>
-                    </div>
-                ) : (
-                    <p>Bitte ein Bundesland auswählen.</p>
-                )}
+                    <>
+                      <h3 style={{ color: "blue" }}>{selectedState.name}</h3>
+                      <p style={{ color: "blue" }}>Hauptstadt: {selectedState.capital}</p>
+                      {selectedState.name === "Hessen" && (
+                          <table
+                              style={{
+                                marginTop: "10px",
+                                borderCollapse: "collapse",
+                                width: "100%",
+                                color: "blue"
+                              }}
+                          >
+                            <thead>
+                            <tr>
+                              <th
+                                  style={{
+                                    borderBottom: "1px solid #ccc",
+                                    textAlign: "left",
+                                    paddingBottom: "5px"
+                                  }}
+                              >
+                                Kategorie
+                              </th>
+                              <th
+                                  style={{
+                                    borderBottom: "1px solid #ccc",
+                                    textAlign: "left",
+                                    paddingBottom: "5px"
+                                  }}
+                              >
+                                Wert
+                              </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {hessenData.map((item) => (
+                                <tr key={item.kategorie}>
+                                  <td style={{ padding: "4px 0" }}>{item.kategorie}</td>
+                                  <td style={{ padding: "4px 0" }}>{item.wert}</td>
+                                </tr>
+                            ))}
+                            </tbody>
+                          </table>
+                      )}
+                    </>
+                ) : null}
               </div>
           )}
 
-          <p>
-            Wähle aus, welcher Inhalt in der mittleren Spalte angezeigt werden soll.
-          </p>
-
+          {/* Speichern-Button nur anzeigen, wenn NICHT Deutschland Map */}
           {selectedRightMode !== "Deutschland Map" && (
               <button
                   style={{
