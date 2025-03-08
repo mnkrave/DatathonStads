@@ -3,8 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { ReactComponent as Germany } from './germany.svg';
 import './styles.css';
 
-
-
 // Mapping der Bundesländer-IDs auf Name und Hauptstadt
 const stateData = {
   "DE-BW": { name: "Baden-Württemberg", capital: "Stuttgart" },
@@ -24,15 +22,13 @@ const stateData = {
   "DE-TH": { name: "Thüringen", capital: "Erfurt" }
 };
 
-// Überschriften für die Filter-Dropdowns in der linken Spalte
+// Überschriften für die Filter-Dropdowns in der linken Spalte (wie im Backend‑Modell erwartet)
 const dropdownHeadings = [
   "Regionen",
   "Bundesländer",
   "Geschlecht",
   "Versicherungsart",
   "Abrechnungsziffer",
-  "Woche",
-  "KV-Region",
   "Altersgruppe",
   "Fachrichtung",
   "Absolute Anzahl",
@@ -40,9 +36,9 @@ const dropdownHeadings = [
   "Risikogruppen"
 ];
 
-// Optionen für jeden Filter (ohne "Keine Auswahl", da diese oben hinzugefügt wird)
+// Optionen für jeden Filter (ohne "Keine Auswahl" – diese fügen wir als erste Option ein)
 const filterOptions = {
-  "Regionen": ["Nord", "Ost", "Süd", "West", "Zentral"],
+  "Regionen": ["Region Nord", "Region Ost", "Region Süd", "Region West", "Region Zentral"],
   "Bundesländer": [
     "Baden-Württemberg",
     "Berlin",
@@ -63,8 +59,6 @@ const filterOptions = {
   "Geschlecht": ["Männlich", "Weiblich", "Divers", "Keine Angabe"],
   "Versicherungsart": ["GKV", "PKV", "Sonstige"],
   "Abrechnungsziffer": ["EBM", "GOÄ", "Sonstiges"],
-  "Woche": ["KW1", "KW2", "KW3"],
-  "KV-Region": ["Region A", "Region B", "Region C"],
   "Altersgruppe": ["0-18", "19-35", "36-60", "60+"],
   "Fachrichtung": ["Allgemeinmedizin", "Innere Medizin", "Pädiatrie", "Gynäkologie", "Chirurgie"],
   "Absolute Anzahl": ["Niedrig", "Mittel", "Hoch"],
@@ -86,6 +80,20 @@ const extraOptionsMapping = {
   "Vergleichsdiagramm": ["Regionen", "Bundesländer"]
 };
 
+// Mapping, um die Schlüssel der linken Filter in die vom Backend‑Modell erwarteten Schlüssel umzuwandeln
+const leftKeyMapping = {
+  "Regionen": "Region",
+  "Bundesländer": "Bundeslaender",
+  "Geschlecht": "Geschlecht",
+  "Versicherungsart": "Versicherungsart",
+  "Abrechnungsziffer": "Abrechnungsziffer",
+  "Altersgruppe": "Altersgruppe",
+  "Fachrichtung": "Fachrichtung",
+  "Absolute Anzahl": "Absolute_Anzahl",
+  "Extrapolierte Impfungen": "Extrapolierte_Impfungen",
+  "Risikogruppen": "Risikogruppen"
+};
+
 function App() {
   // Initialisiere alle linken Filter auf "Keine Auswahl"
   const initialLeftFilters = dropdownHeadings.reduce((acc, heading) => {
@@ -102,6 +110,7 @@ function App() {
           : ""
   );
   const [selectedYAxis, setSelectedYAxis] = useState("Impfquote");
+  const [selectedSortierart, setSelectedSortierart] = useState("aufsteigend");
 
   // Handler für Klicks in der SVG-Karte (mittlere Spalte)
   const handleSVGClick = (event) => {
@@ -113,52 +122,71 @@ function App() {
     }
   };
 
-  // API-Call, um alle ausgewählten Filter an das Backend zu senden
-  const saveSelections = async () => {
-    // Transformiere die linken Filter: "Keine Auswahl" wird zu -1
+  // Funktion zum Erstellen des JSON-Objekts – so wie es den Backend-Modellen entspricht
+  const createJsonData = () => {
+    // Transformiere die linken Filter: "Keine Auswahl" wird zu "-1" und Schlüssel werden gemappt
     const processedLeftFilters = {};
     for (const key in leftFilters) {
-      processedLeftFilters[key] = leftFilters[key] === "Keine Auswahl" ? -1 : leftFilters[key];
+      const mappedKey = leftKeyMapping[key];
+      processedLeftFilters[mappedKey] = leftFilters[key] === "Keine Auswahl" ? "-1" : leftFilters[key];
     }
 
-    const data = {
-      leftFilters: processedLeftFilters,
-      rightSelection: {
-        mode: selectedRightMode,
-        extra: selectedExtra,
-        yAxis: selectedRightMode === "Vergleichsdiagramm" ? selectedYAxis : undefined,
-      },
-      selectedState,
+    // Erstelle das Objekt für die Diagrammauswahl (AuswahlDiagramm)
+    const auswahlDiagramm = {
+      diagrammart: selectedRightMode,
+      yAchse: selectedRightMode === "Vergleichsdiagramm" ? selectedYAxis : "",
+      vglMit: selectedExtra,
+      sortierart: (selectedRightMode === "Vergleichsdiagramm" || selectedRightMode === "Zeitlicher Verlauf")
+          ? selectedSortierart
+          : ""
     };
 
+    // Finales JSON-Objekt (bei "Deutschland Map" wird selectedState ignoriert)
+    const data = {
+      filterRequest: processedLeftFilters,
+      auswahlDiagramm: auswahlDiagramm
+    };
+
+    return data;
+  };
+
+  // Methode, um das aktuell erstellte JSON zurückzugeben
+  const getCurrentJson = () => {
+    return createJsonData();
+  };
+
+  // API-Call, um die JSON-Daten an das Backend zu senden
+  const saveSelections = async () => {
+    const data = createJsonData();
+
     try {
-      const response = await fetch('/http://127.0.0.1:8000/diagram', {
-        method: 'POST',
+      const response = await fetch("http://127.0.0.1:8000/diagram", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         },
         body: JSON.stringify(data)
       });
 
       if (!response.ok) {
-        console.error('Fehler beim Senden der Daten:', response.statusText);
+        console.error("Fehler beim Senden der Daten:", response.statusText);
       } else {
-        console.log('Daten erfolgreich an das Backend gesendet!');
+        console.log("Daten erfolgreich an das Backend gesendet!");
       }
     } catch (error) {
-      console.error('Netzwerkfehler:', error);
+      console.error("Netzwerkfehler:", error);
     }
   };
 
-  // Auto-Speichern bei Änderungen (mit debounce möglich, hier einfach direkt)
+  // Auto-Speichern bei Änderungen (ohne Debounce)
   useEffect(() => {
     saveSelections();
-  }, [leftFilters, selectedRightMode, selectedExtra, selectedYAxis, selectedState]);
+  }, [leftFilters, selectedRightMode, selectedExtra, selectedYAxis, selectedSortierart, selectedState]);
 
   let mainContent;
   if (selectedRightMode === "Zeitlicher Verlauf") {
     mainContent = (
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: "center" }}>
           <h2>Zeitlicher Verlauf</h2>
           <p>Gewählter Zeitraum: {selectedExtra}</p>
           <p>(Weitere Inhalte folgen...)</p>
@@ -166,15 +194,15 @@ function App() {
     );
   } else if (selectedRightMode === "Deutschland Map") {
     mainContent = (
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: "center" }}>
           <h2>Deutschland Map</h2>
-          <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+          <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
             <Germany
                 onClick={handleSVGClick}
                 style={{
-                  maxWidth: '600px',
-                  width: '100%',
-                  cursor: 'pointer',
+                  maxWidth: "600px",
+                  width: "100%",
+                  cursor: "pointer"
                 }}
             />
           </div>
@@ -182,7 +210,7 @@ function App() {
     );
   } else if (selectedRightMode === "Vergleichsdiagramm") {
     mainContent = (
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: "center" }}>
           <h2>Vergleichsdiagramm</h2>
           <p>Vergleich: {selectedExtra}</p>
           <p>Y-Achse: {selectedYAxis}</p>
@@ -192,60 +220,67 @@ function App() {
   }
 
   return (
-      <div className="App" style={{ display: 'flex', height: '100vh' }}>
-        {/* Linke Spalte: Filter-Dropdowns */}
-        <div style={{
-          flex: 1,
-          borderRight: '1px solid #ccc',
-          padding: '10px',
-          color: '#fff'
-        }}>
-          <h1>Filter</h1>
-          {dropdownHeadings.map((heading, index) => (
-              <div key={index} style={{ marginBottom: '15px' }}>
-                <h3 style={{ marginBottom: '5px' }}>{heading}</h3>
-                <select
-                    style={{ width: '100%' }}
-                    value={leftFilters[heading]}
-                    onChange={(e) =>
-                        setLeftFilters({
-                          ...leftFilters,
-                          [heading]: e.target.value,
-                        })
-                    }
-                >
-                  <option value="Keine Auswahl">Keine Auswahl</option>
-                  {filterOptions[heading].map((option, idx) => (
-                      <option key={idx} value={option}>
-                        {option}
-                      </option>
-                  ))}
-                </select>
-              </div>
-          ))}
-          {/* Da wir den API-Call automatisch auslösen, brauchen wir keinen "Anwenden"-Button mehr */}
-        </div>
+      <div className="App" style={{ display: "flex", height: "100vh" }}>
+        {/* Linke Spalte: Filter-Dropdowns – nur anzeigen, wenn der rechte Modus NICHT "Deutschland Map" ist */}
+        {selectedRightMode !== "Deutschland Map" && (
+            <div
+                style={{
+                  flex: 1,
+                  borderRight: "1px solid #ccc",
+                  padding: "10px",
+                  color: "#fff"
+                }}
+            >
+              <h1>Filter</h1>
+              {dropdownHeadings.map((heading, index) => (
+                  <div key={index} style={{ marginBottom: "15px" }}>
+                    <h3 style={{ marginBottom: "5px" }}>{heading}</h3>
+                    <select
+                        style={{ width: "100%" }}
+                        value={leftFilters[heading]}
+                        onChange={(e) =>
+                            setLeftFilters({
+                              ...leftFilters,
+                              [heading]: e.target.value
+                            })
+                        }
+                    >
+                      <option value="Keine Auswahl">Keine Auswahl</option>
+                      {filterOptions[heading].map((option, idx) => (
+                          <option key={idx} value={option}>
+                            {option}
+                          </option>
+                      ))}
+                    </select>
+                  </div>
+              ))}
+            </div>
+        )}
 
         {/* Mittlere Spalte: Hauptinhalt */}
-        <div style={{
-          flex: 2,
-          padding: '10px',
-          color: '#fff',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
+        <div
+            style={{
+              flex: selectedRightMode !== "Deutschland Map" ? 2 : 3,
+              padding: "10px",
+              color: "#fff",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+        >
           {mainContent}
         </div>
 
         {/* Rechte Spalte: Auswahl der Anzeige-Optionen */}
-        <div style={{
-          flex: 1,
-          borderLeft: '1px solid #ccc',
-          padding: '10px',
-          color: '#fff'
-        }}>
+        <div
+            style={{
+              flex: 1,
+              borderLeft: "1px solid #ccc",
+              padding: "10px",
+              color: "#fff"
+            }}
+        >
           <h2>Inhalt auswählen</h2>
           <select
               value={selectedRightMode}
@@ -259,14 +294,16 @@ function App() {
                 }
               }}
               style={{
-                width: '100%',
-                marginBottom: '15px',
-                fontSize: '16px',
-                padding: '8px'
+                width: "100%",
+                marginBottom: "15px",
+                fontSize: "16px",
+                padding: "8px"
               }}
           >
             {rightModeOptions.map((option, index) => (
-                <option key={index} value={option}>{option}</option>
+                <option key={index} value={option}>
+                  {option}
+                </option>
             ))}
           </select>
 
@@ -275,21 +312,50 @@ function App() {
                   value={selectedExtra}
                   onChange={(e) => setSelectedExtra(e.target.value)}
                   style={{
-                    width: '100%',
-                    marginBottom: '15px',
-                    fontSize: '16px',
-                    padding: '8px'
+                    width: "100%",
+                    marginBottom: "15px",
+                    fontSize: "16px",
+                    padding: "8px"
                   }}
               >
                 {extraOptionsMapping[selectedRightMode].map((option, index) => (
-                    <option key={index} value={option}>{option}</option>
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
                 ))}
               </select>
           )}
 
+          {/* Radio-Buttons für Sortierart – nur anzeigen für Zeitlicher Verlauf und Vergleichsdiagramm */}
+          {(selectedRightMode === "Zeitlicher Verlauf" || selectedRightMode === "Vergleichsdiagramm") && (
+              <div style={{ marginBottom: "15px" }}>
+                <h3 style={{ marginBottom: "5px" }}>Sortierart</h3>
+                <label>
+                  <input
+                      type="radio"
+                      name="sortierart"
+                      value="aufsteigend"
+                      checked={selectedSortierart === "aufsteigend"}
+                      onChange={(e) => setSelectedSortierart(e.target.value)}
+                  />
+                  Aufsteigend
+                </label>
+                <label style={{ marginLeft: "10px" }}>
+                  <input
+                      type="radio"
+                      name="sortierart"
+                      value="absteigend"
+                      checked={selectedSortierart === "absteigend"}
+                      onChange={(e) => setSelectedSortierart(e.target.value)}
+                  />
+                  Absteigend
+                </label>
+              </div>
+          )}
+
           {selectedRightMode === "Vergleichsdiagramm" && (
-              <div style={{ marginBottom: '15px' }}>
-                <h3 style={{ marginBottom: '5px' }}>Y-Achse</h3>
+              <div style={{ marginBottom: "15px" }}>
+                <h3 style={{ marginBottom: "5px" }}>Y-Achse</h3>
                 <label>
                   <input
                       type="radio"
@@ -300,7 +366,7 @@ function App() {
                   />
                   Impfquote
                 </label>
-                <label style={{ marginLeft: '10px' }}>
+                <label style={{ marginLeft: "10px" }}>
                   <input
                       type="radio"
                       name="yAxis"
@@ -314,7 +380,7 @@ function App() {
           )}
 
           {selectedRightMode === "Deutschland Map" && (
-              <div style={{ marginTop: '20px' }}>
+              <div style={{ marginTop: "20px" }}>
                 {selectedState ? (
                     <div>
                       <h3>{selectedState.name}</h3>
@@ -329,21 +395,23 @@ function App() {
           <p>
             Wähle aus, welcher Inhalt in der mittleren Spalte angezeigt werden soll.
           </p>
-          {/* Zusätzlich gibt es hier einen "Speichern"-Button, der den API-Call manuell auslöst */}
-          <button
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#00509e',
-                border: 'none',
-                color: '#fff',
-                cursor: 'pointer',
-                width: '100%',
-                fontSize: '16px'
-              }}
-              onClick={saveSelections}
-          >
-            Speichern
-          </button>
+
+          {selectedRightMode !== "Deutschland Map" && (
+              <button
+                  style={{
+                    padding: "10px 20px",
+                    backgroundColor: "#00509e",
+                    border: "none",
+                    color: "#fff",
+                    cursor: "pointer",
+                    width: "100%",
+                    fontSize: "16px"
+                  }}
+                  onClick={saveSelections}
+              >
+                Speichern
+              </button>
+          )}
         </div>
       </div>
   );
