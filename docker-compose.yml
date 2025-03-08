@@ -6,6 +6,7 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app  # Live-Updates für backend-Code
+      - ./shared_data:/shared_data
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   frontend:
@@ -15,6 +16,7 @@ services:
     volumes:
       - ./frontend:/app  # Live-Updates für Frontend-Code
       - /app/node_modules
+      - ./shared_data:/shared_data
     depends_on:
       - backend
     command: npm start
