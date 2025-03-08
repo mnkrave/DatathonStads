@@ -157,10 +157,19 @@ function App() {
 
   // API-Call, um die JSON-Daten an das Backend zu senden
   const saveSelections = async () => {
-    const data = createJsonData();
+    //const data = createJsonData();
+    const data = {
+  diagrammart: "Balkendiagramm",
+  yAchse: "Anzahl",
+  vglMit: "Vorjahr",
+  sortierart: "aufsteigend",
+  sortierenBy: "Altersgruppe",
+  Region: "Berlin",
+  Geschlecht: "männlich"
+};
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/diagram", {
+      const response = await fetch("http://localhost:8000/diagram", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -171,7 +180,8 @@ function App() {
       if (!response.ok) {
         console.error("Fehler beim Senden der Daten:", response.statusText);
       } else {
-        console.log("Daten erfolgreich an das Backend gesendet!");
+          const result = await response.json()
+        console.log("Daten erfolgreich an das Backend gesendet!", result);
       }
     } catch (error) {
       console.error("Netzwerkfehler:", error);
