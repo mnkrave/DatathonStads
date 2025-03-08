@@ -5,17 +5,7 @@ import  filter as ft
 import itertools
 #df = pd.read_csv("C:/Users/maxge/PycharmProjects/DatathonStads/Data/cgm-datathon-challenge-flu_riskgroupsv1.csv", delimiter=';')
 
-data = {
-    "diagrammart": "Liniendiagramm",
-    "yAchse": "extrapolated",
-    "vglMit": "Region",
-    "sortierart": "aufsteigend",
-    "Region": "Nord",
-    "Bundeslaender": None,  # Dieser Schlüssel hat keinen Wert
-    "Geschlecht": "M",
-    "Versicherungsart": None,  # Dieser Schlüssel hat keinen Wert
-    "Abrechnungsziffer": "EBM123"
-}
+
 
 
 def create_plot_from_dict(data : dict, df : pd.DataFrame ):

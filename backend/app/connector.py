@@ -23,7 +23,11 @@ test_dict = {
 
 dff = pd.read_csv("D:/Datathon/backend/Data/data.csv",encoding='utf-8', delimiter=';')
 def connect(dc : dict) -> plt:
-    return cp.create_plot_from_dict(cleanUp(dc),dff)
+    plot = cp.create_plot_from_dict(cleanUp(dc), dff)
+    plot.savefig("diagram.png", format="png", dpi=300)  # 🔥 Hohe Qualität (300 DPI)
+    return plot
+
+
 
 
 def cleanUp(dc : dict) -> dict:

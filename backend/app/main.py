@@ -4,7 +4,7 @@ from .models import AuswahlDiagramm  # Relativer Import bleibt
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import matplotlib.pyplot as plt
-
+import connector as c
 app = FastAPI()
 
 # 🚀 CORS aktivieren
@@ -36,5 +36,5 @@ async def create_diagram(request: AuswahlDiagramm):
 
     # Simulierte Verarbeitung der Daten
     print(f"Empfangene Daten: {request.dict()}")
-    generate_diagram()  # Diagramm generieren
+    c.connect(request.dict())  # Diagramm generieren
     return FileResponse("diagram.png", media_type="image/png")
