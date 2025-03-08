@@ -29,8 +29,6 @@ const dropdownHeadings = [
   "Geschlecht",
   "Versicherungsart",
   "Abrechnungsziffer",
-  "Woche",
-  "KV-Region",
   "Altersgruppe",
   "Fachrichtung",
   "Absolute Anzahl",
@@ -61,8 +59,6 @@ const filterOptions = {
   "Geschlecht": ["Männlich", "Weiblich", "Divers", "Keine Angabe"],
   "Versicherungsart": ["GKV", "PKV", "Sonstige"],
   "Abrechnungsziffer": ["EBM", "GOÄ", "Sonstiges"],
-  "Woche": ["KW1", "KW2", "KW3"],
-  "KV-Region": ["Region A", "Region B", "Region C"],
   "Altersgruppe": ["0-18", "19-35", "36-60", "60+"],
   "Fachrichtung": ["Allgemeinmedizin", "Innere Medizin", "Pädiatrie", "Gynäkologie", "Chirurgie"],
   "Absolute Anzahl": ["Niedrig", "Mittel", "Hoch"],
@@ -91,8 +87,6 @@ const leftKeyMapping = {
   "Geschlecht": "Geschlecht",
   "Versicherungsart": "Versicherungsart",
   "Abrechnungsziffer": "Abrechnungsziffer",
-  "Woche": "Woche",
-  "KV-Region": "KV_Region",
   "Altersgruppe": "Altersgruppe",
   "Fachrichtung": "Fachrichtung",
   "Absolute Anzahl": "Absolute_Anzahl",
@@ -156,7 +150,7 @@ function App() {
     return data;
   };
 
-  // Hier fügen wir die Methode hinzu, die das aktuell erstellte JSON zurückgibt
+  // Methode, um das aktuell erstellte JSON zurückzugeben
   const getCurrentJson = () => {
     return createJsonData();
   };
@@ -196,9 +190,6 @@ function App() {
           <h2>Zeitlicher Verlauf</h2>
           <p>Gewählter Zeitraum: {selectedExtra}</p>
           <p>(Weitere Inhalte folgen...)</p>
-          <pre style={{ backgroundColor: "#333", padding: "10px", borderRadius: "4px", color: "#fff", textAlign: "left" }}>
-          {JSON.stringify(createJsonData(), null, 2)}
-        </pre>
         </div>
     );
   } else if (selectedRightMode === "Deutschland Map") {
@@ -215,9 +206,6 @@ function App() {
                 }}
             />
           </div>
-          <pre style={{ backgroundColor: "#333", padding: "10px", borderRadius: "4px", color: "#fff", textAlign: "left" }}>
-          {JSON.stringify(createJsonData(), null, 2)}
-        </pre>
         </div>
     );
   } else if (selectedRightMode === "Vergleichsdiagramm") {
@@ -227,9 +215,6 @@ function App() {
           <p>Vergleich: {selectedExtra}</p>
           <p>Y-Achse: {selectedYAxis}</p>
           <p>(Weitere Inhalte folgen...)</p>
-          <pre style={{ backgroundColor: "#333", padding: "10px", borderRadius: "4px", color: "#fff", textAlign: "left" }}>
-          {JSON.stringify(createJsonData(), null, 2)}
-        </pre>
         </div>
     );
   }

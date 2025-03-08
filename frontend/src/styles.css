@@ -1,24 +1,169 @@
-/* ------ styles.css ------ */
-
+/* -----------------------------------
+   Globales Reset & Grundlayout
+----------------------------------- */
 * {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
-body {
-  background-color: #89898b;
+html, body {
+  /* Eine helle, leicht bläuliche Hintergrundfarbe
+     bzw. ein zarter Farbverlauf: */
+  background: linear-gradient(
+      120deg,
+      #f6f9fc 0%,
+      #ffffff 100%
+  );
+  font-family: 'Open Sans', sans-serif; /* Oder Roboto, etc. */
+  color: #333; /* Dunkles Grau für Text */
+  height: 100%;
+  min-height: 100%;
 }
 
-/* Gestalte alle Pfade in der SVG */
+/* Container-Klasse (optional, falls du sie nutzen möchtest) */
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+/* -----------------------------------
+   Spalten-Layout
+----------------------------------- */
+
+/* Linke Spalte */
+.left-column {
+  flex: 1;
+  padding: 20px;
+  /* Heller Blauton, an CGM angelehnt */
+  background-color: #eaf1f8;
+  border-right: 1px solid #ccc;
+  color: #333;
+}
+
+/* Mittlere Spalte */
+.main-content {
+  flex: 2;
+  padding: 20px;
+  /* Weißer Hintergrund */
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Optionaler Schatten */
+  /* box-shadow: inset 0 0 10px rgba(0,0,0,0.05); */
+  color: #333;
+}
+
+/* Rechte Spalte */
+.right-column {
+  flex: 1;
+  padding: 20px;
+  background-color: #eaf1f8;
+  border-left: 1px solid #ccc;
+  color: #333;
+}
+
+/* -----------------------------------
+   Überschriften, Texte, Buttons
+----------------------------------- */
+
+h1, h2, h3 {
+  margin-bottom: 12px;
+  color: #00509e; /* Kräftigeres Blau für Überschriften */
+}
+
+/* Standard-Absätze */
+p {
+  margin-bottom: 10px;
+}
+
+/* Buttons */
+button {
+  padding: 10px 20px;
+  background-color: #0c64d2; /* CGM-Blau */
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 4px;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+  width: 100%;
+}
+
+button:hover {
+  background-color: #00509e; /* dunklerer Hover-Effekt */
+}
+
+/* -----------------------------------
+   Formularelemente (Dropdowns, Radio)
+----------------------------------- */
+
+select, input[type="radio"] {
+  margin-bottom: 8px;
+  font-size: 14px;
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  color: #333;
+  width: 100%;
+}
+
+/* Radio-Button Label-Abstand */
+label {
+  margin-right: 10px;
+}
+
+/* -----------------------------------
+   SVG-Karte
+----------------------------------- */
+
+/* Pfade der Deutschland-Karte */
 svg path {
-  fill: #032d63;
+  fill: #0c64d2; /* Grundfarbe der Bundesländer */
   stroke: #ffffff;
   stroke-width: 0.25;
 }
 
-/* Beim Hover ändern sich Farbe und Cursor */
+/* Hover-Effekt auf den Pfaden */
 svg path:hover {
-  fill: #0044b5;
-  transition: 0.6s;
+  fill: #00509e;
+  transition: 0.3s;
   cursor: pointer;
 }
+
+/* -----------------------------
+   Beispiel-Ergänzung in styles.css
+------------------------------ */
+
+/* Alle Labels, z.B. für Radio-Buttons,
+   bekommen die blaue Schriftfarbe */
+label {
+  color: #00509e;
+}
+
+/* Normale Absatztexte (z.B. "Bitte ein Bundesland auswählen.") */
+p {
+  color: #00509e;
+}
+
+/* Du kannst optional Überschriften oder andere Texte
+   ebenfalls auf diese Farbe setzen, wenn gewünscht: */
+/* h1, h2, h3 {
+  color: #00509e;
+} */
+
+/* Falls du die Buttons auch noch anpassen willst,
+   z.B. Hintergrund #0c64d2, Text weiß, beim Hover dunkler: */
+button {
+  background-color: #0c64d2;
+  color: #fff;
+}
+
+button:hover {
+  background-color: #00509e;
+}
+
+
