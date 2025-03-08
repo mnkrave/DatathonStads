@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import createPlot as cp
+from pathlib import Path
 test_dict = {
     "diagrammart": "vergleichsgraph",
     "yAchse" : "Absolute Werte",
@@ -22,10 +23,16 @@ test_dict = {
 }
 
 dff = pd.read_csv("D:/Datathon/backend/Data/data.csv",encoding='utf-8', delimiter=';')
-def connect(dc : dict) -> plt:
-    plot = cp.create_plot_from_dict(cleanUp(dc), dff)
-    plot.savefig("diagram.png", format="png", dpi=300)  # 🔥 Hohe Qualität (300 DPI)
-    return plot
+def connect(dc : dict) -> str:
+    filename = "diagram.png"
+    plt = cp.create_plot_from_dict(cleanUp(dc), dff)
+    save_path = Path("static")
+    save_path.mkdir(parents=True, exist_ok=True)  # Stellt sicher, dass "static/" existiert
+
+    file_path = save_path / filename  # Datei im "static/" Ordner speichern
+    plt.savefig(file_path, format="png", dpi=300)
+    plt.close()  # Speichern & Ressourcen freigeben
+    return file_path
 
 
 

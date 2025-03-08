@@ -36,5 +36,5 @@ async def create_diagram(request: AuswahlDiagramm):
 
     # Simulierte Verarbeitung der Daten
     print(f"Empfangene Daten: {request.dict()}")
-    c.connect(request.dict())  # Diagramm generieren
-    return FileResponse("diagram.png", media_type="image/png")
+    file_path = c.connect(request.dict())  # Diagramm generieren
+    return FileResponse(file_path, media_type="image/png")
