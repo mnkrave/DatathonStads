@@ -146,7 +146,7 @@ function App() {
       auswahlDiagramm: auswahlDiagramm
     };
 
-    return data;
+    return auswahlDiagramm;
   };
 
   // Methode, um das aktuell erstellte JSON zurückzugeben
