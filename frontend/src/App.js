@@ -138,7 +138,8 @@ function App() {
       vglMit: selectedExtra,
       sortierart: (selectedRightMode === "Vergleichsdiagramm" || selectedRightMode === "Zeitlicher Verlauf")
           ? selectedSortierart
-          : ""
+          : "-1",
+      sortierenBy: "extrapolated"
     };
 
     // Finales JSON-Objekt (bei "Deutschland Map" wird selectedState ignoriert)
@@ -157,25 +158,8 @@ function App() {
 
   // API-Call, um die JSON-Daten an das Backend zu senden
   const saveSelections = async () => {
-    //const data = createJsonData();
-    const data = {
-  diagrammart: "Balkendiagramm",
-  yAchse: "Anzahl",
-  vglMit: "Vorjahr",
-  sortierart: "aufsteigend",
-  sortierenBy: "Altersgruppe",
-  Region: "Berlin",
-  Bundeslaender: "Berlin, Brandenburg",
-  Geschlecht: "männlich",
-  Versicherungsart: "gesetzlich",
-  Abrechnungsziffer: "123456",
-  Woche: "2024-W12",
-  Altersgruppe: "30-40",
-  Fachrichtung: "Allgemeinmedizin",
-  Absolute_Anzahl: "250",
-  Extrapolierte_Impfungen: "500",
-  Risikogruppen: "Diabetiker, Asthmatiker"
-};
+      const data = createJsonData();
+
 
 
     try {
