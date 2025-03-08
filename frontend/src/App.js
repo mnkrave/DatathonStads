@@ -134,14 +134,14 @@ function App() {
         vglMit: selectedExtra,
         sortierart: (selectedRightMode === "Vergleichsdiagramm" || selectedRightMode === "Zeitlicher Verlauf")
             ? selectedSortierart
-            : null,  // ✅ "-1" durch `null` ersetzt
+            : "-1",  // ✅ "-1" durch `null` ersetzt
         sortierenBy: "extrapolated"
     };
 
     // Loop durch alle linken Filter und wandle "Keine Auswahl" in `null` um
     for (const key in leftFilters) {
         const mappedKey = leftKeyMapping[key];
-        auswahlDiagramm[mappedKey] = leftFilters[key] === "Keine Auswahl" ? null : leftFilters[key];
+        auswahlDiagramm[mappedKey] = leftFilters[key] === "Keine Auswahl" ? "-1" : leftFilters[key];
     }
 
     // Finales JSON-Objekt (bei "Deutschland Map" wird selectedState ignoriert)
