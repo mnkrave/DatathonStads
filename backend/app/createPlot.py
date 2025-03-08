@@ -54,6 +54,7 @@ def create_plot_from_dict(data : dict, df : pd.DataFrame ):
         # Create the Vergleichsgraph
         plt.figure(figsize=(12, 6))
         df_sorted = df_sorted.groupby(data.get("vglMit"), as_index=False)["extrapolated"].sum()
+        df_sorted = ft.sortieren(df_sorted, data_neu)
         sns.barplot(data=df_sorted, x=data.get("vglMit"), y="extrapolated", palette="viridis")
 
         # Customize the plot

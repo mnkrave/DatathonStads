@@ -5,7 +5,8 @@ test_dict = {
     "diagrammart": "vergleichsgraph",
     "yAchse" : "Absolute Werte",
     "vglMit": "Bundeslaender",
-    "sortierart": "Ascending",
+    "sortierart": "Aufsteigendd",
+    "sortierenBy": "Extrapolierte_Impfungen",
     "Region": "-1",
     "Bundeslaender": "-1",
     "Geschlecht": "Mann",
@@ -47,6 +48,8 @@ def cleanUp(dc : dict) -> dict:
     converted_dict["vglMit"] = column_mapping[dc["vglMit"]]
     converted_dict["yAchse"] = dc["yAchse"]
     converted_dict["diagrammart"] = dc["diagrammart"]
+    converted_dict["sortierart"] = dc["sortierart"]
+    converted_dict["sortierenBy"] = column_mapping[dc["sortierenBy"]]
     if converted_dict["gender"] == "Mann":
         converted_dict["gender"] = "m"
     elif converted_dict["gender"] == "Frau":

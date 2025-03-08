@@ -7,13 +7,13 @@ class AuswahlDiagramm(BaseModel):
     yAchse: str
     vglMit: str
     sortierart: str  # "aufsteigend" oder "absteigend"
+    sortierenBy: str
     Region: Optional[str]
     Bundeslaender: Optional[str]
     Geschlecht: Optional[str]
     Versicherungsart: Optional[str]
     Abrechnungsziffer: Optional[str]
     Woche: Optional[str]
-    KV_Region: Optional[str]
     Altersgruppe: Optional[str]
     Fachrichtung: Optional[str]
     Absolute_Anzahl: Optional[str]
