@@ -3,7 +3,6 @@ from typing import Optional,Any
 
 # Modell für Diagrammauswahl
 class AuswahlDiagramm(BaseModel):
-    class AuswahlDiagramm(BaseModel):
         diagrammart: str
         yAchse: str
         vglMit: str
